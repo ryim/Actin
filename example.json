@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Curls",
+        "sets": 3,
+        "reps": [
+            8,
+            8,
+            8
+        ],
+        "weights": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "useKg": true,
+        "day": 23,
+        "month": 12,
+        "year": 2025
+    },
+    {
+        "name": "Second thing",
+        "sets": 3,
+        "reps": [
+            8,
+            8,
+            8
+        ],
+        "weights": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "useKg": true,
+        "day": 1,
+        "month": 12,
+        "year": 2025
+    }
+]

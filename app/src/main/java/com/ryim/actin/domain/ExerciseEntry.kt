@@ -1,0 +1,79 @@
+package com.ryim.actin.domain
+
+import kotlinx.serialization.Serializable
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlin.time.ExperimentalTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
+
+
+
+@Serializable
+data class ExerciseEntry(
+    val name: String,
+    val sets: Int,
+    val reps: List<Int>,
+    val weights: List<Float>,
+    val useKg: Boolean,
+    val day: Int,
+    val month: Int,
+    val year: Int,
+    val timestamp: String? = null,
+    val workout: String? = null
+)
+
+// domain/ExerciseEntry.kt
+
+@OptIn(ExperimentalTime::class)
+fun ExerciseEntry.noonTimestamp(): String {
+    val date = LocalDate(year, month, day)
+    val time = LocalTime(12, 0)
+    val localDateTime = LocalDateTime(date, time)
+
+    val zone = TimeZone.currentSystemDefault()
+    return localDateTime.toInstant(zone).toString()
+}
+
+fun monthAbbrev(month: Int): String {
+    return when (month) {
+        1 -> "Jan"
+        2 -> "Feb"
+        3 -> "Mar"
+        4 -> "Apr"
+        5 -> "May"
+        6 -> "Jun"
+        7 -> "Jul"
+        8 -> "Aug"
+        9 -> "Sep"
+        10 -> "Oct"
+        11 -> "Nov"
+        12 -> "Dec"
+        else -> ""
+    }
+}
+
+@OptIn(ExperimentalTime::class)
+fun formatTimestampPretty(timestamp: String): String {
+    val instant = Instant.parse(timestamp)
+    val ldt = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+    val day = ldt.date.day
+    val month = ldt.date.month.number
+    val year = ldt.date.year % 100  // last two digits
+
+    val hour = ldt.time.hour
+    val minute = ldt.time.minute
+
+    return "%02d %s %02d • %02d:%02d".format(
+        day,
+        monthAbbrev(month),
+        year,
+        hour,
+        minute
+    )
+}
