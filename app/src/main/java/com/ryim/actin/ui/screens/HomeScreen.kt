@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
@@ -123,42 +125,17 @@ fun HomeScreen(
                     )
 
                 },
-                actions = {
-                    // Button to add new exercise
-                    Box(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary)
-                            .padding(end = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Button(
-                            onClick = {
-                                sharedExAddViewModel.setPrefill(
-                                    ExAddPrefill(
-                                        name = "",
-                                        sets = 3,
-                                        reps = List(3) { 8 },
-                                        weights = List(3) { "" },
-                                        useKg = true,
-                                        editMode = false,
-                                        timestamp = null,
-                                        workout = null
-                                    )
-                                )
-                                onNavigateToExAdd()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                "New",
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-                    }
-                },
+//                actions = {
+//                    // Button to add new exercise
+//                    Box(
+//                        modifier = Modifier
+//                            .background(MaterialTheme.colorScheme.primary)
+//                            .padding(end = 12.dp),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//
+//                    }
+//                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
@@ -195,7 +172,7 @@ fun HomeScreen(
                 NavigationBarItem(
                     selected = selectedItem == 1,
                     onClick = onProgress,
-                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Home") },
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Progress") },
                     label = { Text("Progress") },
                     colors = navBarItemColors
                 )
@@ -204,7 +181,7 @@ fun HomeScreen(
                 NavigationBarItem(
                     selected = selectedItem == 2,
                     onClick = onExercise,
-                    icon = { Icon(Icons.Default.EditNote, contentDescription = "Placeholder 2") },
+                    icon = { Icon(Icons.Default.EditNote, contentDescription = "Workouts") },
                     label = { Text("Workouts") },
                     colors = navBarItemColors
                 )
@@ -221,10 +198,12 @@ fun HomeScreen(
         }
 
     ) { innerPadding ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -306,6 +285,49 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+
+            Button(
+                onClick = { onExercise() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    "Start a workout",
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+
+            Button(
+                onClick = {
+                    sharedExAddViewModel.setPrefill(
+                        ExAddPrefill(
+                            name = "",
+                            sets = 3,
+                            reps = List(3) { 8 },
+                            weights = List(3) { "" },
+                            useKg = true,
+                            editMode = false,
+                            timestamp = null,
+                            workout = null
+                        )
+                    )
+                    onNavigateToExAdd()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    "Start an individual exercise",
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Text(
                 "Recent activity",
                 style = MaterialTheme.typography.titleMedium,
@@ -321,22 +343,21 @@ fun HomeScreen(
             // History list for the exercises
             var entryToDelete by remember { mutableStateOf<ExerciseEntry?>(null) }
 
-            LazyColumn {
-                items(uiState.latestExercises) { entry ->
-                    ExerciseHistoryRow(
-                        entry = entry,
-                        sharedExAddViewModel = sharedExAddViewModel,
-                        onNavigateToExAdd = onNavigateToExAdd,
-                        onDeleteRequest = { entryToDelete = it }
-                    )
+            uiState.latestExercises.forEach { entry ->
+                ExerciseHistoryRow(
+                    entry = entry,
+                    sharedExAddViewModel = sharedExAddViewModel,
+                    onNavigateToExAdd = onNavigateToExAdd,
+                    onDeleteRequest = { entryToDelete = it }
+                )
 
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                    )
-                }
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                )
             }
+
             if (entryToDelete != null) {
                 AlertDialog(
                     onDismissRequest = { entryToDelete = null },
