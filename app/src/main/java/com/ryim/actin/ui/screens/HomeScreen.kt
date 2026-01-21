@@ -249,6 +249,19 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
+                    modifier = Modifier.width(90.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row {
+                        WeeklyNumberSummary(
+                            label = "Workouts",
+                            thisWeekValue = uiState.thisWeekWorkoutCount,
+                            lastWeekValue = uiState.lastWeekWorkoutCount
+                        )
+                    }
+                }
+
+                Column(
                     modifier = Modifier
                         .width(90.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -288,7 +301,7 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+//                Spacer(modifier = Modifier.width(8.dp))
             }
 
             Spacer(modifier = Modifier.height(24.dp))

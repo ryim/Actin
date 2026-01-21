@@ -78,44 +78,74 @@ class HomeScreenViewModel @Inject constructor(
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
 
-            // Rolling week boundaries
-            val startOfThisWeek = today.minus(DatePeriod(days = 6))   // last 7 days
-            val startOfLastWeek = today.minus(DatePeriod(days = 13))  // 8–14 days ago
+            val startOfThisWeek = today.minus(DatePeriod(days = 6))
+            val startOfLastWeek = today.minus(DatePeriod(days = 13))
             val endOfLastWeek = today.minus(DatePeriod(days = 7))
 
-            // Convert timestamp → LocalDate
             fun ExerciseEntry.date(): LocalDate =
                 Instant.parse(timestamp!!)
                     .toLocalDateTime(TimeZone.currentSystemDefault())
                     .date
 
-            // This rolling week: last 7 days
             val thisWeek = all.filter { entry ->
                 val date = entry.date()
                 date in startOfThisWeek..today
             }
 
-            // Last rolling week: 8–14 days ago
             val lastWeek = all.filter { entry ->
                 val date = entry.date()
                 date in startOfLastWeek..endOfLastWeek
             }
 
+            val thisWeekWorkoutCount = countWorkouts(thisWeek)
+            val lastWeekWorkoutCount = countWorkouts(lastWeek)
+
             _uiState.update {
                 it.copy(
                     lastWeekExercises = lastWeek,
-                    thisWeekExercises = thisWeek
+                    thisWeekExercises = thisWeek,
+                    thisWeekWorkoutCount = thisWeekWorkoutCount,
+                    lastWeekWorkoutCount = lastWeekWorkoutCount
                 )
             }
         }
     }
+
+    private fun countWorkouts(entries: List<ExerciseEntry>): Int {
+        if (entries.isEmpty()) return 0
+
+        val sorted = entries.sortedBy { Instant.parse(it.timestamp!!) }
+
+        var workouts = 1
+        var lastTime = Instant.parse(sorted.first().timestamp!!)
+
+        for (i in 1 until sorted.size) {
+            val current = Instant.parse(sorted[i].timestamp!!)
+            val diff = current - lastTime
+
+            // 2 hours = 7200 seconds
+            if (diff.inWholeSeconds >= 7200) {
+                workouts++
+            }
+
+            lastTime = current
+        }
+
+        return workouts
+    }
+
 }
 
 data class MainUiState(
     val latestExercises: List<ExerciseEntry> = emptyList(),
     val lastWeekExercises: List<ExerciseEntry> = emptyList(),
-    val thisWeekExercises: List<ExerciseEntry> = emptyList()
+    val thisWeekExercises: List<ExerciseEntry> = emptyList(),
+
+    // New fields for workout counts
+    val lastWeekWorkoutCount: Int = 0,
+    val thisWeekWorkoutCount: Int = 0
 )
+
 
 //    fun deleteExercise(entry: ExerciseEntry) {
 //        viewModelScope.launch {
