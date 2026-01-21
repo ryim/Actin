@@ -10,7 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.Clock
+import kotlin.time.ExperimentalTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
 @HiltViewModel
@@ -28,8 +35,10 @@ class HomeScreenViewModel @Inject constructor(
 
     fun refresh() {
         loadHistory()
+        loadUngroupedHistForStats()
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun loadHistory() {
         viewModelScope.launch {
             val all = repo.loadExercises()
@@ -38,12 +47,14 @@ class HomeScreenViewModel @Inject constructor(
                 .groupBy { it.name }
                 .mapValues { (_, entries) ->
                     entries.maxByOrNull { entry ->
-                        LocalDate.of(entry.year, entry.month, entry.day)
+                        Instant.parse(entry.timestamp!!)
                     }
                 }
                 .values
                 .filterNotNull()
-                .sortedByDescending { LocalDate.of(it.year, it.month, it.day) }
+                .sortedByDescending { entry ->
+                    Instant.parse(entry.timestamp!!)
+                }
 
             _uiState.update { it.copy(latestExercises = latestByName) }
         }
@@ -56,34 +67,38 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun ExerciseEntry.toLocalDate(): LocalDate =
-        LocalDate.of(year, month, day)
+//    private fun ExerciseEntry.toLocalDate(): LocalDate =
+//        LocalDate.of(year, month, day)
 
     private fun loadUngroupedHistForStats() {
         viewModelScope.launch {
             val all = repo.loadExercises()
 
-            val today = LocalDate.now()
+            val today = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
 
             // Rolling week boundaries
-            val startOfThisWeek = today.minusDays(6)   // last 7 days including today
-            val startOfLastWeek = today.minusDays(13)  // 8–14 days ago
-            val endOfLastWeek = today.minusDays(7)
+            val startOfThisWeek = today.minus(DatePeriod(days = 6))   // last 7 days
+            val startOfLastWeek = today.minus(DatePeriod(days = 13))  // 8–14 days ago
+            val endOfLastWeek = today.minus(DatePeriod(days = 7))
 
-            // Convert once for efficiency
+            // Convert timestamp → LocalDate
             fun ExerciseEntry.date(): LocalDate =
-                LocalDate.of(year, month, day)
+                Instant.parse(timestamp!!)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
 
             // This rolling week: last 7 days
             val thisWeek = all.filter { entry ->
                 val date = entry.date()
-                !date.isBefore(startOfThisWeek) && !date.isAfter(today)
+                date in startOfThisWeek..today
             }
 
             // Last rolling week: 8–14 days ago
             val lastWeek = all.filter { entry ->
                 val date = entry.date()
-                !date.isBefore(startOfLastWeek) && !date.isAfter(endOfLastWeek)
+                date in startOfLastWeek..endOfLastWeek
             }
 
             _uiState.update {

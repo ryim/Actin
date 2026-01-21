@@ -10,13 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toInstant
 import kotlin.time.ExperimentalTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
@@ -26,8 +27,15 @@ class ExAddEditViewModel @Inject constructor(
 ) : ViewModel() {
 
     //  Today's date
-    private val today: LocalDate = java.time.LocalDate.now()
-    private val now: java.time.LocalTime? = java.time.LocalTime.now()
+    private val today: LocalDate =
+        Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+
+    private val now: LocalTime =
+        Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .time
 
     // Default number of sets
     private val initialSets = 3
@@ -39,10 +47,10 @@ class ExAddEditViewModel @Inject constructor(
             reps = List(initialSets) { 8 },
             weights = List(initialSets) { "" },
             day = today.dayOfMonth.toString(),
-            month = today.monthValue.toString(),
+            month = today.monthNumber.toString(),
             year = today.year.toString(),
-            hour = now?.hour.toString(),
-            minute = now?.minute.toString(),
+            hour = now.hour.toString(),
+            minute = now.minute.toString(),
             useKg = true,
             editMode = false,
             workout = ""
@@ -72,18 +80,6 @@ class ExAddEditViewModel @Inject constructor(
                 editMode = editMode,
                 workout = workout
             )
-        }
-        if (editMode && oldTimestamp != null) {
-            val instant = Instant.parse(oldTimestamp)
-            val date = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-            _uiState.update {
-                it.copy(
-                    day = date.dayOfMonth.toString(),
-                    month = date.monthNumber.toString(),
-                    year = date.year.toString()
-                )
-            }
         }
 
         //  Update the time and date pickers with the current timestamp

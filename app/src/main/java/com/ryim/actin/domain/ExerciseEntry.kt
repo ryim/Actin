@@ -57,14 +57,13 @@ fun monthAbbrev(month: Int): String {
     }
 }
 
-@OptIn(ExperimentalTime::class)
 fun formatTimestampPretty(timestamp: String): String {
     val instant = Instant.parse(timestamp)
     val ldt = instant.toLocalDateTime(TimeZone.currentSystemDefault())
 
-    val day = ldt.date.day
-    val month = ldt.date.month.number
-    val year = ldt.date.year % 100  // last two digits
+    val day = ldt.date.dayOfMonth
+    val month = ldt.date.monthNumber
+    val year = ldt.date.year % 100
 
     val hour = ldt.time.hour
     val minute = ldt.time.minute

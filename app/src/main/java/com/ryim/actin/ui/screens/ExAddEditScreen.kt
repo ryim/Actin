@@ -37,7 +37,6 @@ import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 
@@ -497,10 +496,11 @@ fun ExAddEditScreen(
                                         .date
 
                                     viewModel.updateDate(
-                                        date.day,
-                                        date.month.number,
+                                        date.dayOfMonth,
+                                        date.monthNumber,
                                         date.year
                                     )
+
                                 }
                                 showDatePicker = false
                             }) { Text("OK") }

@@ -73,7 +73,10 @@ import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.WeeklyCount
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -608,7 +611,13 @@ fun WeeklyBarChart(
             )
 
             // X-axis label (week start date)
-            val label = week.weekStart.format(DateTimeFormatter.ofPattern("dd MMM"))
+            val label = week.weekStart.format(
+                LocalDate.Format {
+                    dayOfMonth()
+                    char(' ')
+                    monthName(MonthNames.ENGLISH_ABBREVIATED)
+                }
+            )
 
             // Compute the center of the bar
             val barCenter = left + (barWidth * 0.4f)
