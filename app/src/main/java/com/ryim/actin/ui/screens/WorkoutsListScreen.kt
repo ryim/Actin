@@ -43,11 +43,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.R
-import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.ui.WorkoutListScreenViewModel
-import java.time.LocalDate
-import androidx.compose.runtime.collectAsState
 import com.ryim.actin.ui.SharedWorkoutViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +56,7 @@ fun WorkoutListScreen(
     onSettings: () -> Unit,
     onNewWorkout: () -> Unit,
     onRunWorkout: (Workout) -> Unit,
-    sharedWorkoutViewModel: SharedWorkoutViewModel = hiltViewModel(),
+//    sharedWorkoutViewModel: SharedWorkoutViewModel = hiltViewModel(),
     viewModel: WorkoutListScreenViewModel = hiltViewModel(),
 ) {
     Scaffold(
@@ -194,62 +191,12 @@ fun WorkoutListScreen(
                     WorkoutListCard(
                         workout = workout,
                         onRunWorkout = onRunWorkout,
-//                        history = viewModel.uiState.collectAsState().value.allExercises,
-//                        onEditExercise = { exerciseName ->
-//                            handleExerciseEdit(
-//                                exerciseName = exerciseName,
-//                                history = viewModel.uiState.value.allExercises,
-//                                onExerciseAdd = onExerciseAdd
-//                            )
-//                        }
                     )
                 }
             }
         }
     }
 }
-
-//fun handleExerciseEdit(
-//    exerciseName: String,
-//    history: List<ExerciseEntry>,   // whatever your history type is
-//    onExerciseAdd: (
-//        name: String,
-//        sets: Int,
-//        reps: List<Int>,
-//        weights: List<String>,
-//        useKg: Boolean,
-//        editMode: Boolean,
-//        timestamp: String?
-//    ) -> Unit
-//) {
-//    // Find the most recent matching entry
-//    val latest = history.firstOrNull { it.name.equals(exerciseName, ignoreCase = true) }
-//
-//    if (latest != null) {
-//        // Pre-fill from history
-//        onExerciseAdd(
-//            latest.name,
-//            latest.sets,
-//            latest.reps,
-//            latest.weights.map { it.toString() },
-//            latest.useKg,
-//            false,
-//            latest.timestamp
-//        )
-//    } else {
-//        // Launch with defaults, but name filled in
-//        onExerciseAdd(
-//            exerciseName,
-//            3,
-//            List(3) { 8 },
-//            List(3) { "" },
-//            true,
-//            false,
-//            null
-//        )
-//    }
-//}
-
 
 @Composable
 fun WorkoutListCard(
@@ -306,48 +253,8 @@ fun WorkoutListCard(
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyMedium
                     )
-
-//                    val doneToday = wasDoneToday(exercise.name, history)
-
-//                    IconButton(
-//                        onClick = { onEditExercise(exercise.name) },
-//                        colors = IconButtonDefaults.filledIconButtonColors(
-//                            containerColor = if (doneToday)
-//                                MaterialTheme.colorScheme.primary
-//                            else
-//                                MaterialTheme.colorScheme.secondary
-//                        )
-//                    ) {
-//                        if (doneToday) {
-//                            Icon(
-//                                imageVector = Icons.Default.Check,
-//                                contentDescription = "Completed today"
-//                            )
-//                        } else {
-//                            Icon(
-//                                imageVector = Icons.Default.Add,
-//                                contentDescription = "Add exercise"
-//                            )
-//                        }
-//                    }
                 }
             }
-
         }
     }
 }
-
-//private fun wasDoneToday(
-//    exerciseName: String,
-//    history: List<ExerciseEntry>
-//): Boolean {
-//    val today = LocalDate.now()
-//
-//    val latest = history.firstOrNull {
-//        it.name.equals(exerciseName, ignoreCase = true)
-//    } ?: return false
-//
-//    val entryDate = LocalDate.of(latest.year, latest.month, latest.day)
-//
-//    return entryDate == today
-//}

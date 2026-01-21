@@ -70,7 +70,7 @@ import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.formatTimestampPretty
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.FullHistoryUIState
-import com.ryim.actin.ui.LogScreenViewModel
+import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.WeeklyCount
 import java.time.format.DateTimeFormatter
@@ -85,7 +85,7 @@ fun ProgressScreen(
     sharedExAddViewModel: SharedExAddViewModel,
     onNavigateToExAdd: () -> Unit,
     onDeleteExercise: (ExerciseEntry) -> Unit,
-    viewModel: LogScreenViewModel = hiltViewModel()
+    viewModel: ProgressScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }

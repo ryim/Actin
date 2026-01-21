@@ -31,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
-import com.ryim.actin.ui.ExAddViewModel
+import com.ryim.actin.ui.ExAddEditViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
@@ -47,7 +47,7 @@ fun ExAddEditScreen(
     prefill: ExAddPrefill?,
     onBack: () -> Unit = {}
 ) {
-    val viewModel: ExAddViewModel = hiltViewModel()
+    val viewModel: ExAddEditViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
     // Date/time pickers

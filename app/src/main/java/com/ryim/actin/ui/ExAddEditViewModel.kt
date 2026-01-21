@@ -21,7 +21,7 @@ import kotlin.time.ExperimentalTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
 @HiltViewModel
-class ExAddViewModel @Inject constructor(
+class ExAddEditViewModel @Inject constructor(
     private val repo: ExerciseRepository
 ) : ViewModel() {
 

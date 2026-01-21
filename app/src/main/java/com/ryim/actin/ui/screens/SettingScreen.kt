@@ -61,7 +61,6 @@ fun SettingScreen(
     onHome: () -> Unit,
     onProgress: () -> Unit,
     onExercise: () -> Unit,
-    onTimer: () -> Unit,
     onSettings: () -> Unit,
     viewModel: SettingScreenViewModel = hiltViewModel(),
 ) {
@@ -284,11 +283,6 @@ fun SettingScreen(
                 modifier = Modifier.align(Alignment.Start)
                     .padding(horizontal = 16.dp)
             )
-
-//            Column(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
 
                 // Import data
                 Box(

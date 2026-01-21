@@ -15,7 +15,7 @@ import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters
 
 @HiltViewModel
-class LogScreenViewModel @Inject constructor(
+class ProgressScreenViewModel @Inject constructor(
     private val repo: ExerciseRepository
 ) : ViewModel() {
 

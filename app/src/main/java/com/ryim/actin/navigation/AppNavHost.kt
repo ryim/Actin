@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ryim.actin.ui.LogScreenViewModel
+import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
@@ -42,10 +42,10 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
     NavHost(
         navController,
-        startDestination = "main",
+        startDestination = "home",
         route = "root"
     ) {
-        composable("main") { backStackEntry ->
+        composable("home") { backStackEntry ->
 
             // Get the parent NavGraph entry (the root graph)
             val parentEntry = remember(backStackEntry) {
@@ -60,19 +60,19 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
             HomeScreen(
                 sharedExAddViewModel = sharedExAddViewModel,
-                onNavigateToExAdd = { navController.navigate("exAdd") },
+                onNavigateToExAdd = { navController.navigate("exAddEdit") },
                 onDeleteExercise = { entry ->
                     mainViewModel.deleteExercise(entry)
-                    navController.navigate("main")
+                    navController.navigate("home")
                 },
-                onHome = { navController.navigate("main") },
-                onProgress = { navController.navigate("GraphScreen") },
+                onHome = { navController.navigate("home") },
+                onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
                 onSettings = { navController.navigate("SettingScreen") }
             )
         }
 
-        composable("exAdd") { backStackEntry ->
+        composable("exAddEdit") { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("root")   // or whatever your top-level graph route is
             }
@@ -85,79 +85,37 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onBack = {
                     sharedExAddViewModel.clearPrefill()
                     navController.popBackStack()
-//                    navController.navigate("main")
                 }
             )
         }
 
-//        composable(route = "exAdd") {
-//
-//            // Get the shared ViewModel that holds the prefill data
-//            val sharedExAddViewModel: SharedExAddViewModel = hiltViewModel()
-//            val prefill = sharedExAddViewModel.prefill.collectAsState().value
-//
-//            // Get your existing ExAddViewModel
-//            val exAddViewModel: ExAddViewModel = hiltViewModel()
-//
-//            // Push the prefill data into ExAddViewModel when the screen opens
-//            LaunchedEffect(prefill) {
-//                prefill?.let {
-//                    exAddViewModel.setPrefillParams(
-//                        name = it.name,
-//                        oldSets = it.sets,
-//                        oldReps = it.reps,
-//                        oldWeights = it.weights,
-//                        oldUseKg = it.useKg,
-//                        editMode = it.editMode,
-//                        oldTimestamp = it.timestamp,
-//                        workout = it.workout
-//                    )
-//                }
-//            }
-//
-//            ExAddEditScreen(
-//                name = exAddViewModel.uiState.collectAsState().value.name,
-//                oldSets = exAddViewModel.uiState.collectAsState().value.sets,
-//                oldReps = exAddViewModel.uiState.collectAsState().value.reps,
-//                oldWeights = exAddViewModel.uiState.collectAsState().value.weights,
-//                oldUseKg = exAddViewModel.uiState.collectAsState().value.useKg,
-//                editMode = exAddViewModel.uiState.collectAsState().value.editMode,
-//                oldTimestamp = exAddViewModel.uiState.collectAsState().value.timestamp,
-//                workout = exAddViewModel.uiState.collectAsState().value.workout,
-//                onBack = {
-//                    sharedExAddViewModel.clearPrefill()
-//                    navController.navigate("main")
-//                }
-//            )
-//        }
-
-        composable("GraphScreen") { backStackEntry ->
+        composable("ProgressScreen") { backStackEntry ->
 
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("root")
             }
 
             val sharedExAddViewModel: SharedExAddViewModel = hiltViewModel(parentEntry)
-            val logViewModel: LogScreenViewModel = hiltViewModel()
+            val logViewModel: ProgressScreenViewModel = hiltViewModel()
 
             ProgressScreen(
                 sharedExAddViewModel = sharedExAddViewModel,
-                onHome = { navController.navigate("main") },
-                onProgress = { navController.navigate("GraphScreen") },
+                onHome = { navController.navigate("home") },
+                onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
                 onSettings = { navController.navigate("SettingScreen") },
-                onNavigateToExAdd = { navController.navigate("exAdd") },
+                onNavigateToExAdd = { navController.navigate("exAddEdit") },
                 onDeleteExercise = { entry ->
                     logViewModel.deleteExercise(entry)
-                    navController.navigate("GraphScreen")
+                    navController.navigate("ProgressScreen")
                 }
             )
         }
 
         composable(route = "WorkoutListScreen") {
             WorkoutListScreen(
-                onHome = { navController.navigate("main") },
-                onProgress = { navController.navigate("GraphScreen") },
+                onHome = { navController.navigate("home") },
+                onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
                 onSettings = { navController.navigate("SettingScreen") },
                 onNewWorkout = { navController.navigate("WorkoutEditScreen") },
@@ -165,11 +123,6 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                     sharedWorkoutViewModel.selectWorkout(workout)
                     navController.navigate("WorkoutRunScreen")
                 }
-//                onExerciseAdd = { name, sets, reps, weights, useKg, editMode, timestamp ->
-//                    val repsStr = reps.joinToString(",")
-//                    val weightsStr = weights.joinToString(",")
-//                    navController.navigate("exAdd/$name/$sets/$repsStr/$weightsStr/$useKg/$editMode/$timestamp")
-//                }
             )
         }
         composable("WorkoutRunScreen") { backStackEntry ->
@@ -182,8 +135,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             val sharedExAddViewModel: SharedExAddViewModel = hiltViewModel(parentEntry)
 
             WorkoutRunScreen(
-                onHome = { navController.navigate("main") },
-                onProgress = { navController.navigate("GraphScreen") },
+                onHome = { navController.navigate("home") },
+                onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
                 onSettings = { navController.navigate("SettingScreen") },
 
@@ -191,7 +144,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 sharedWorkoutViewModel = sharedWorkoutViewModel,
                 sharedExAddViewModel = sharedExAddViewModel,
 
-                onNavigateToExAdd = { navController.navigate("exAdd") }
+                onNavigateToExAdd = { navController.navigate("exAddEdit") }
             )
         }
 
@@ -200,22 +153,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onBack = { navController.popBackStack() }
             )
         }
-
-        composable(route = "TimerScreen") {
-            TimerScreen(
-                onHome = { navController.navigate("main") },
-                onGraph = { navController.navigate("GraphScreen") },
-                onExercise = { navController.navigate("WorkoutListScreen") },
-                onTimer = { navController.navigate("TimerScreen") },
-                onSettings = { navController.navigate("SettingScreen") },
-            )
-        }
+        
         composable(route = "SettingScreen") {
             SettingScreen(
-                onHome = { navController.navigate("main") },
-                onProgress = { navController.navigate("GraphScreen") },
+                onHome = { navController.navigate("home") },
+                onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
-                onTimer = { navController.navigate("TimerScreen") },
                 onSettings = { navController.navigate("SettingScreen") },
             )
         }

@@ -3,6 +3,7 @@
 ##  To Do list
 
 ### High priority
+-   Add editing and deletion to the Workouts list screen
 -   Change sorting on home screen and progress screen to by timestamp
 -   Add TSV export
 -   Add graphs of the best rating of exercises

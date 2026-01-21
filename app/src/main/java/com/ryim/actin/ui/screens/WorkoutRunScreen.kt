@@ -253,7 +253,6 @@ fun handleExerciseEdit(
     onNavigateToExAdd()
 }
 
-
 @Composable
 fun WorkoutCard(
     workout: Workout,
