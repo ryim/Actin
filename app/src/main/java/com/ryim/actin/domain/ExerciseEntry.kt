@@ -39,6 +39,24 @@ fun ExerciseEntry.noonTimestamp(): String {
     return localDateTime.toInstant(zone).toString()
 }
 
+fun ExerciseEntry.localDate(zone: TimeZone): LocalDate =
+    Instant.parse(timestamp!!)
+        .toLocalDateTime(zone)
+        .date
+
+fun ExerciseEntry.formattedDate(zone: TimeZone): String {
+    val date = Instant.parse(timestamp!!)
+        .toLocalDateTime(zone)
+        .date
+
+    val day = date.dayOfMonth.toString().padStart(2, '0')
+    val month = monthAbbrev(date.monthNumber)
+    val year = date.year.toString()
+
+    return "$day $month $year"
+}
+
+
 fun monthAbbrev(month: Int): String {
     return when (month) {
         1 -> "Jan"

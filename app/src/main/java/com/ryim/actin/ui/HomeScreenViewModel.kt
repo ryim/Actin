@@ -10,14 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.Clock
-import kotlin.time.ExperimentalTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.toLocalDateTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
 @HiltViewModel
@@ -38,25 +42,31 @@ class HomeScreenViewModel @Inject constructor(
         loadUngroupedHistForStats()
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun loadHistory() {
         viewModelScope.launch {
             val all = repo.loadExercises()
 
-            val latestByName = all
-                .groupBy { it.name }
-                .mapValues { (_, entries) ->
-                    entries.maxByOrNull { entry ->
-                        Instant.parse(entry.timestamp!!)
-                    }
-                }
-                .values
-                .filterNotNull()
+            val zone = TimeZone.currentSystemDefault()
+            val today = Clock.System.now()
+                .toLocalDateTime(zone)
+                .date
+
+            fun ExerciseEntry.date(): LocalDate =
+                Instant.parse(timestamp!!)
+                    .toLocalDateTime(zone)
+                    .date
+
+            // Keep only entries from the last 21 days
+            val recent = all.filter { entry ->
+                val entryDate = entry.date()
+                val ageInDays = entryDate.daysUntil(today)   // 0 = today, 1 = yesterday, etc.
+                ageInDays in 0..21
+            }
                 .sortedByDescending { entry ->
                     Instant.parse(entry.timestamp!!)
                 }
 
-            _uiState.update { it.copy(latestExercises = latestByName) }
+            _uiState.update { it.copy(latestExercises = recent) }
         }
     }
 
@@ -74,38 +84,35 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val all = repo.loadExercises()
 
-            val today = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
+            val zone = TimeZone.currentSystemDefault()
+            val today: LocalDate = Clock.System.now()
+                .toLocalDateTime(zone)
                 .date
-
-            val startOfThisWeek = today.minus(DatePeriod(days = 6))
-            val startOfLastWeek = today.minus(DatePeriod(days = 13))
-            val endOfLastWeek = today.minus(DatePeriod(days = 7))
 
             fun ExerciseEntry.date(): LocalDate =
                 Instant.parse(timestamp!!)
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .toLocalDateTime(zone)
                     .date
 
+            // daysUntil(other) is positive when `other` is after `this`
             val thisWeek = all.filter { entry ->
-                val date = entry.date()
-                date in startOfThisWeek..today
+                val d = entry.date()
+                val diff = d.daysUntil(today)  // 0 = today, 1 = yesterday, etc.
+                diff in 0..6
             }
 
             val lastWeek = all.filter { entry ->
-                val date = entry.date()
-                date in startOfLastWeek..endOfLastWeek
+                val d = entry.date()
+                val diff = d.daysUntil(today)
+                diff in 7..13
             }
-
-            val thisWeekWorkoutCount = countWorkouts(thisWeek)
-            val lastWeekWorkoutCount = countWorkouts(lastWeek)
 
             _uiState.update {
                 it.copy(
                     lastWeekExercises = lastWeek,
                     thisWeekExercises = thisWeek,
-                    thisWeekWorkoutCount = thisWeekWorkoutCount,
-                    lastWeekWorkoutCount = lastWeekWorkoutCount
+                    thisWeekWorkoutCount = countWorkouts(thisWeek),
+                    lastWeekWorkoutCount = countWorkouts(lastWeek)
                 )
             }
         }

@@ -65,9 +65,19 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ryim.actin.R
 import com.ryim.actin.domain.ExerciseEntry
+import com.ryim.actin.domain.formattedDate
+import com.ryim.actin.domain.localDate
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.until
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -217,7 +227,9 @@ fun HomeScreen(
 
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                    .padding(horizontal = 16.dp),
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.tertiary
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -337,13 +349,45 @@ fun HomeScreen(
 
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                    .padding(horizontal = 16.dp),
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.tertiary
             )
 
             // History list for the exercises
             var entryToDelete by remember { mutableStateOf<ExerciseEntry?>(null) }
+            val entries = uiState.latestExercises
+            val zone = TimeZone.currentSystemDefault()
+            val today = Clock.System.now().toLocalDateTime(zone).date
 
-            uiState.latestExercises.forEach { entry ->
+            entries.forEachIndexed { index, entry ->
+
+                val entryDate = entry.localDate(zone)
+
+                // Determine if we need a header
+                val showHeader = when (index) {
+                    0 -> true // always show header for the first item
+                    else -> {
+                        val prevDate = entries[index - 1].localDate(zone)
+                        entryDate != prevDate
+                    }
+                }
+
+                if (showHeader) {
+                    val headerText = when (entryDate.daysUntil(today)) {
+                        0 -> "Today"
+                        1 -> "Yesterday"
+                        else -> entry.formattedDate(zone)
+                    }
+
+                    Text(
+                        text = headerText,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    )
+                }
+
+                // Your existing row
                 ExerciseHistoryRow(
                     entry = entry,
                     sharedExAddViewModel = sharedExAddViewModel,
@@ -351,11 +395,21 @@ fun HomeScreen(
                     onDeleteRequest = { entryToDelete = it }
                 )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                )
+                // Divider logic (unchanged)
+                if (index < entries.lastIndex) {
+                    val currentTime = Instant.parse(entry.timestamp!!)
+                    val nextTime = Instant.parse(entries[index + 1].timestamp!!)
+
+                    val hoursBetween = nextTime.until(currentTime, DateTimeUnit.HOUR, TimeZone.UTC)
+
+                    if (hoursBetween > 2) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                        )
+                    }
+                }
             }
 
             if (entryToDelete != null) {
