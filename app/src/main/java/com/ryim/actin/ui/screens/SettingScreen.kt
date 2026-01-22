@@ -68,7 +68,7 @@ fun SettingScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    //  Launchers for data export and export
+    //  Launchers for JSON export and export
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -80,6 +80,20 @@ fun SettingScreen(
     ) { uri ->
         if (uri != null) viewModel.importFromUri(uri)
     }
+
+    //  Launcher for TSV export
+    var pendingTsv by remember { mutableStateOf<String?>(null) }
+
+    val TSVExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/tab-separated-values")
+    ) { uri ->
+        if (uri != null && pendingTsv != null) {
+            context.contentResolver.openOutputStream(uri)?.use { stream ->
+                stream.write(pendingTsv!!.toByteArray())
+            }
+        }
+    }
+
 
     //  The main part of the composable
     Scaffold(
@@ -336,7 +350,10 @@ fun SettingScreen(
                 ) {
                     Button(
                         onClick = {
-
+                            viewModel.requestTsvExport { tsv ->
+                                pendingTsv = tsv
+                                TSVExportLauncher.launch("exercises_export.tsv")
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -347,7 +364,6 @@ fun SettingScreen(
                     }
                 }
 //            }
-
 
             HorizontalDivider(
                 modifier = Modifier

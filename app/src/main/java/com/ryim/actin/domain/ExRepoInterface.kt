@@ -18,4 +18,6 @@ interface ExerciseRepository {
     suspend fun exportJson(): String
 
     suspend fun importJson(json: String)
+
+    suspend fun buildTsvString(): String
 }

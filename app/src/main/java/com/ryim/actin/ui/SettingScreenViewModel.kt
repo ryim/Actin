@@ -37,4 +37,11 @@ class SettingScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun requestTsvExport(onReady: (String) -> Unit) {
+        viewModelScope.launch {
+            val tsv = repo.buildTsvString()
+            onReady(tsv)
+        }
+    }
 }

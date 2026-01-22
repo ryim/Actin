@@ -16,6 +16,7 @@ class ExerciseRepositoryImpl(
 ) : ExerciseRepository {
 
     private val fileName = "exercises.json"
+    val tsvFile = File(context.filesDir, "exercises_export.tsv")
 
     override suspend fun saveOrReplaceExercise(
         entry: ExerciseEntry,
@@ -66,7 +67,6 @@ class ExerciseRepositoryImpl(
             )
         )
     }
-
 
     override suspend fun deleteExercise(
         name: String,
@@ -138,7 +138,6 @@ class ExerciseRepositoryImpl(
         }
     }
 
-
     override suspend fun exportJson(): String {
         val file = File(context.filesDir, fileName)
         return if (file.exists()) file.readText() else "[]"
@@ -149,4 +148,37 @@ class ExerciseRepositoryImpl(
         file.writeText(json)
     }
 
+    override suspend fun buildTsvString(): String = withContext(Dispatchers.IO) {
+        val exercises = loadExercises()
+
+        val header = listOf(
+            "name",
+            "sets",
+            "reps",
+            "weights",
+            "useKg",
+            "day",
+            "month",
+            "year",
+            "timestamp",
+            "workout"
+        ).joinToString("\t")
+
+        val rows = exercises.map { entry ->
+            listOf(
+                entry.name,
+                entry.sets.toString(),
+                entry.reps.joinToString(","),
+                entry.weights.joinToString(","),
+                entry.useKg.toString(),
+                entry.day.toString(),
+                entry.month.toString(),
+                entry.year.toString(),
+                entry.timestamp ?: "",
+                entry.workout ?: ""
+            ).joinToString("\t")
+        }
+
+        (listOf(header) + rows).joinToString("\n")
+    }
 }

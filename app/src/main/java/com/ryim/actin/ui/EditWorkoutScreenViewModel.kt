@@ -51,28 +51,6 @@ class EditWorkoutViewModel @Inject constructor(
         }
     }
 
-
-
-//    fun addExercise() {
-//        exercises.add(WorkoutExercise())
-//    }
-//
-//    fun updateExerciseName(id: String, newName: String) {
-//        val index = exercises.indexOfFirst { it.id == id }
-//        if (index != -1) {
-//            exercises[index] = exercises[index].copy(name = newName)
-//        }
-//    }
-//
-//    fun moveExercise(from: Int, to: Int) {
-//        exercises.add(to, exercises.removeAt(from))
-//    }
-//
-//
-//    fun removeExercise(id: String) {
-//        exercises.removeAll { it.id == id }
-//    }
-
     fun save() {
         viewModelScope.launch {
             repo.saveWorkout(
