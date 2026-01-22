@@ -32,22 +32,34 @@ class WorkoutListScreenViewModel @Inject constructor(
         viewModelScope.launch {
             workouts = repo.loadWorkouts()
         }
-        loadHistory()
+//        loadHistory()
     }
 
-    private fun loadHistory() {
+    suspend fun refresh() {
+        workouts = repo.loadWorkouts()
+//        loadHistory()
+    }
+
+    fun deleteWorkout(workout: Workout) {
         viewModelScope.launch {
-            val all = exRepo.loadExercises()
-
-            val sorted = all.sortedByDescending { entry ->
-                LocalDate.of(entry.year, entry.month, entry.day)
-            }
-
-            _uiState.update {
-                it.copy(
-                    allExercises = sorted,
-                )
-            }
+            repo.deleteWorkout(workout.id)
+            refresh()
         }
     }
+
+//    private fun loadHistory() {
+//        viewModelScope.launch {
+//            val all = exRepo.loadExercises()
+//
+//            val sorted = all.sortedByDescending { entry ->
+//                LocalDate.of(entry.year, entry.month, entry.day)
+//            }
+//
+//            _uiState.update {
+//                it.copy(
+//                    allExercises = sorted,
+//                )
+//            }
+//        }
+//    }
 }

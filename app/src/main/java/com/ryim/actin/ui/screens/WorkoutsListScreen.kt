@@ -6,32 +6,44 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,11 +51,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
 import com.ryim.actin.R
+import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.workouts.Workout
+import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
 
@@ -56,9 +75,26 @@ fun WorkoutListScreen(
     onSettings: () -> Unit,
     onNewWorkout: () -> Unit,
     onRunWorkout: (Workout) -> Unit,
-//    sharedWorkoutViewModel: SharedWorkoutViewModel = hiltViewModel(),
-    viewModel: WorkoutListScreenViewModel = hiltViewModel(),
+    navController: NavHostController,
+    sharedWorkoutViewModel: SharedWorkoutViewModel,
+    viewModel: WorkoutListScreenViewModel,
+    onEditWorkout: (Workout) -> Unit = { selected ->
+        sharedWorkoutViewModel.selectWorkout(selected)
+        onNewWorkout()
+    },
+    onDeleteWorkout: (Workout) -> Unit
 ) {
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            if (entry.destination.route == "WorkoutListScreen") {
+                viewModel.refresh()
+            }
+        }
+    }
+
+    val scrollState = rememberScrollState()
+    var workoutToDelete by remember { mutableStateOf<Workout?>(null) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,30 +119,6 @@ fun WorkoutListScreen(
                             .padding(start = 12.dp)
                             .size(54.dp)
                     )
-                },
-                actions = {
-                    // Button to add new exercise
-                    Box(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary)
-                            .padding(end = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Button(
-                            onClick = {
-                                onNewWorkout()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                "New",
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -175,9 +187,26 @@ fun WorkoutListScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
+//                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    sharedWorkoutViewModel.clearSelectedWorkout()
+                    onNewWorkout()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    "New workout",
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
 
 
             LazyColumn(
@@ -191,9 +220,38 @@ fun WorkoutListScreen(
                     WorkoutListCard(
                         workout = workout,
                         onRunWorkout = onRunWorkout,
+                        onEditWorkout = onEditWorkout,
+                        onDeleteRequest = { selected ->
+                            workoutToDelete = selected
+                        }
                     )
                 }
             }
+
+            //  Workout deletion dialog alert
+            if (workoutToDelete != null) {
+                AlertDialog(
+                    onDismissRequest = { workoutToDelete = null },
+                    title = { Text("Delete workout?") },
+                    text = { Text("This action cannot be undone.") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                onDeleteWorkout(workoutToDelete!!)
+                                workoutToDelete = null
+                            }
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { workoutToDelete = null }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
         }
     }
 }
@@ -201,7 +259,9 @@ fun WorkoutListScreen(
 @Composable
 fun WorkoutListCard(
     workout: Workout,
-    onRunWorkout: (Workout) -> Unit
+    onRunWorkout: (Workout) -> Unit,
+    onEditWorkout: (Workout) -> Unit,
+    onDeleteRequest: (Workout) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -228,7 +288,7 @@ fun WorkoutListCard(
                         .padding(end = 8.dp)  // small spacing before button
                 )
 
-                // Button on the right
+                // Start button on the right
                 Button(
                     onClick = { onRunWorkout(workout) },
                     colors = ButtonDefaults.buttonColors(
@@ -239,7 +299,38 @@ fun WorkoutListCard(
                     Text("Start", color = MaterialTheme.colorScheme.onSecondary)
                 }
 
+                //  Edit and delete dropdown
+                var menuExpanded by remember { mutableStateOf(false) }
 
+                Box {
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                    }
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+
+                        // Edit
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {
+                                menuExpanded = false
+                                onEditWorkout(workout)
+                            }
+                        )
+
+                        // Delete
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                menuExpanded = false
+                                onDeleteRequest(workout)
+                            }
+                        )
+                    }
+                }
             }
 
             // Exercises

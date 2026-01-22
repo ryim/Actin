@@ -12,15 +12,26 @@ import com.ryim.actin.domain.workouts.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @HiltViewModel
 class EditWorkoutViewModel @Inject constructor(
     private val repo: WorkoutRepository
 ) : ViewModel() {
 
+    var workoutId: String? = null
+    var editMode by mutableStateOf(false)
     var name by mutableStateOf("")
     var exercises = mutableStateListOf<WorkoutExercise>()
         private set
+
+    fun loadWorkout(workout: Workout) {
+        workoutId = workout.id
+        name = workout.name
+        exercises.clear()
+        exercises.addAll(workout.exercises)
+        editMode = true
+    }
 
     fun addExercise() {
         exercises.add(WorkoutExercise())
@@ -53,11 +64,15 @@ class EditWorkoutViewModel @Inject constructor(
 
     fun save() {
         viewModelScope.launch {
-            repo.saveWorkout(
-                Workout(
-                    name = name,
-                    exercises = exercises.toList()
-                )
+            val workout = Workout(
+                id = workoutId ?: UUID.randomUUID().toString(),
+                name = name,
+                exercises = exercises.toList()
+            )
+
+            repo.saveOrReplaceWorkout(
+                workout,
+                editMode = editMode
             )
         }
     }

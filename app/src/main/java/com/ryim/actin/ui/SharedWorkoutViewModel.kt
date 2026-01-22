@@ -16,4 +16,8 @@ class SharedWorkoutViewModel @Inject constructor() : ViewModel() {
     fun selectWorkout(workout: Workout) {
         _selectedWorkout.value = workout
     }
+
+    fun clearSelectedWorkout() {
+        _selectedWorkout.value = null
+    }
 }

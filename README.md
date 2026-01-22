@@ -3,8 +3,7 @@
 ##  To Do list
 
 ### High priority
--   Add editing and deletion to the Workouts list screen
--   Add TSV export
+-   Change recent activity to the last 3 weeks, and group by workout
 -   Add graphs of the best rating of exercises
     -   volume
     -   last set reps
@@ -32,6 +31,8 @@
 -   There is no checking for integrity of the JSON file on import
 
 ##  Done
+-   Add editing and deletion to the Workouts list screen
+-   Add TSV export
 -   Change sorting on home screen and progress screen to by timestamp
 -   Fixed: Back button in ExAddScreen from full history brings you back to Home, rather than the history.
 -   FIXED After deleting an exercise on the main screen, the exercise is still there, because the data isn't reloaded and the UI state isn't updated after the deletion

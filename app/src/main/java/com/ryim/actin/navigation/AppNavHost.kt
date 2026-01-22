@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +14,7 @@ import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
+import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.screens.EditWorkoutScreen
 import com.ryim.actin.ui.screens.HomeScreen
 import com.ryim.actin.ui.screens.ExAddEditScreen
@@ -112,7 +114,10 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
 
-        composable(route = "WorkoutListScreen") {
+        composable("WorkoutListScreen") {
+
+            val listViewModel: WorkoutListScreenViewModel = hiltViewModel()
+
             WorkoutListScreen(
                 onHome = { navController.navigate("home") },
                 onProgress = { navController.navigate("ProgressScreen") },
@@ -122,9 +127,16 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onRunWorkout = { workout ->
                     sharedWorkoutViewModel.selectWorkout(workout)
                     navController.navigate("WorkoutRunScreen")
+                },
+                navController = navController,
+                sharedWorkoutViewModel = sharedWorkoutViewModel,
+                viewModel = listViewModel,
+                onDeleteWorkout = { workout ->
+                    listViewModel.deleteWorkout(workout)
                 }
             )
         }
+
         composable("WorkoutRunScreen") { backStackEntry ->
 
             val parentEntry = remember(backStackEntry) {
@@ -148,9 +160,10 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
 
-        composable(route = "WorkoutEditScreen") {
+        composable("WorkoutEditScreen") {
             EditWorkoutScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                sharedWorkoutViewModel = sharedWorkoutViewModel
             )
         }
         

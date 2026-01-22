@@ -5,6 +5,7 @@ import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.domain.workouts.WorkoutRepository
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -19,11 +20,41 @@ class WorkoutRepositoryImpl(
         prettyPrint = true
     }
 
-    override suspend fun saveWorkout(workout: Workout) {
-        val existing = loadWorkouts().map { it.toDto() }.toMutableList()
-        existing.add(workout.toDto())
+    override suspend fun saveOrReplaceWorkout(workout: Workout, editMode: Boolean) {
 
-        file.writeText(prettyJson.encodeToString(existing))
+        // Load existing workouts (DTO list)
+        val existing = if (file.exists()) {
+            val text = file.readText()
+            if (text.isNotBlank()) {
+                Json.decodeFromString(
+                    ListSerializer(WorkoutDto.serializer()),
+                    text
+                )
+            } else emptyList()
+        } else emptyList()
+
+        val finalDto = workout.toDto()
+
+        val updated = if (editMode) {
+            val mutable = existing.toMutableList()
+
+            // Replace by ID
+            val index = mutable.indexOfFirst { it.id == finalDto.id }
+            if (index != -1) {
+                mutable.removeAt(index)
+            }
+
+            mutable + finalDto
+        } else {
+            existing + finalDto
+        }
+
+        file.writeText(
+            prettyJson.encodeToString(
+                ListSerializer(WorkoutDto.serializer()),
+                updated
+            )
+        )
     }
 
 
@@ -34,4 +65,29 @@ class WorkoutRepositoryImpl(
         val list = Json.decodeFromString<List<WorkoutDto>>(text)
         return list.map { it.toDomain() }
     }
+
+    override suspend fun deleteWorkout(id: String) {
+
+        val existing = if (file.exists()) {
+            val text = file.readText()
+            if (text.isNotBlank()) {
+                Json.decodeFromString(
+                    ListSerializer(WorkoutDto.serializer()),
+                    text
+                )
+            } else emptyList()
+        } else emptyList()
+
+        val updated = existing.filterNot { it.id == id }
+
+        val prettyJson = Json { prettyPrint = true }
+
+        file.writeText(
+            prettyJson.encodeToString(
+                ListSerializer(WorkoutDto.serializer()),
+                updated
+            )
+        )
+    }
+
 }
