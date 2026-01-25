@@ -13,15 +13,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.daysUntil
-import kotlinx.datetime.toLocalDateTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
 @HiltViewModel
@@ -42,29 +36,46 @@ class HomeScreenViewModel @Inject constructor(
         loadUngroupedHistForStats()
     }
 
+    private suspend fun loadEntriesWithAges(): List<DatedEntry> {
+        val all = repo.loadExercises()
+        val zone = TimeZone.currentSystemDefault()
+        val today = Clock.System.now().toLocalDateTime(zone).date
+
+        return all.map { entry ->
+            val instant = Instant.parse(entry.timestamp!!)
+            val date = instant.toLocalDateTime(zone).date
+            val age = date.daysUntil(today)
+
+            DatedEntry(entry, date, age, instant)
+        }
+    }
+
+    private fun loadUngroupedHistForStats() {
+        viewModelScope.launch {
+            val entries = loadEntriesWithAges()
+
+            val thisWeek = entries.filter { it.ageInDays in 0..6 }
+            val lastWeek = entries.filter { it.ageInDays in 7..13 }
+
+            _uiState.update {
+                it.copy(
+                    lastWeekExercises = lastWeek.map { it.entry },
+                    thisWeekExercises = thisWeek.map { it.entry },
+                    thisWeekWorkoutCount = countWorkouts(thisWeek),
+                    lastWeekWorkoutCount = countWorkouts(lastWeek)
+                )
+            }
+        }
+    }
+
     private fun loadHistory() {
         viewModelScope.launch {
-            val all = repo.loadExercises()
+            val entries = loadEntriesWithAges()
 
-            val zone = TimeZone.currentSystemDefault()
-            val today = Clock.System.now()
-                .toLocalDateTime(zone)
-                .date
-
-            fun ExerciseEntry.date(): LocalDate =
-                Instant.parse(timestamp!!)
-                    .toLocalDateTime(zone)
-                    .date
-
-            // Keep only entries from the last 21 days
-            val recent = all.filter { entry ->
-                val entryDate = entry.date()
-                val ageInDays = entryDate.daysUntil(today)   // 0 = today, 1 = yesterday, etc.
-                ageInDays in 0..21
-            }
-                .sortedByDescending { entry ->
-                    Instant.parse(entry.timestamp!!)
-                }
+            val recent = entries
+                .filter { it.ageInDays in 0..14 }
+                .sortedByDescending { it.instant }
+                .map { it.entry }
 
             _uiState.update { it.copy(latestExercises = recent) }
         }
@@ -77,60 +88,18 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-//    private fun ExerciseEntry.toLocalDate(): LocalDate =
-//        LocalDate.of(year, month, day)
-
-    private fun loadUngroupedHistForStats() {
-        viewModelScope.launch {
-            val all = repo.loadExercises()
-
-            val zone = TimeZone.currentSystemDefault()
-            val today: LocalDate = Clock.System.now()
-                .toLocalDateTime(zone)
-                .date
-
-            fun ExerciseEntry.date(): LocalDate =
-                Instant.parse(timestamp!!)
-                    .toLocalDateTime(zone)
-                    .date
-
-            // daysUntil(other) is positive when `other` is after `this`
-            val thisWeek = all.filter { entry ->
-                val d = entry.date()
-                val diff = d.daysUntil(today)  // 0 = today, 1 = yesterday, etc.
-                diff in 0..6
-            }
-
-            val lastWeek = all.filter { entry ->
-                val d = entry.date()
-                val diff = d.daysUntil(today)
-                diff in 7..13
-            }
-
-            _uiState.update {
-                it.copy(
-                    lastWeekExercises = lastWeek,
-                    thisWeekExercises = thisWeek,
-                    thisWeekWorkoutCount = countWorkouts(thisWeek),
-                    lastWeekWorkoutCount = countWorkouts(lastWeek)
-                )
-            }
-        }
-    }
-
-    private fun countWorkouts(entries: List<ExerciseEntry>): Int {
+    private fun countWorkouts(entries: List<DatedEntry>): Int {
         if (entries.isEmpty()) return 0
 
-        val sorted = entries.sortedBy { Instant.parse(it.timestamp!!) }
+        val sorted = entries.sortedBy { it.instant }
 
         var workouts = 1
-        var lastTime = Instant.parse(sorted.first().timestamp!!)
+        var lastTime = sorted.first().instant
 
         for (i in 1 until sorted.size) {
-            val current = Instant.parse(sorted[i].timestamp!!)
+            val current = sorted[i].instant
             val diff = current - lastTime
 
-            // 2 hours = 7200 seconds
             if (diff.inWholeSeconds >= 7200) {
                 workouts++
             }
@@ -140,7 +109,6 @@ class HomeScreenViewModel @Inject constructor(
 
         return workouts
     }
-
 }
 
 data class MainUiState(
@@ -153,15 +121,9 @@ data class MainUiState(
     val thisWeekWorkoutCount: Int = 0
 )
 
-
-//    fun deleteExercise(entry: ExerciseEntry) {
-//        viewModelScope.launch {
-//            repo.deleteExercise(
-//                name = entry.name,
-//                day = entry.day,
-//                month = entry.month,
-//                year = entry.year
-//            )
-//        }
-//        repo.loadExercises()
-//    }
+data class DatedEntry(
+    val entry: ExerciseEntry,
+    val date: LocalDate,
+    val ageInDays: Int,
+    val instant: Instant
+)

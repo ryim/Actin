@@ -216,7 +216,7 @@ fun WorkoutListScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(viewModel.workouts, key = { it.id }) { workout ->
+                items(viewModel.workouts.asReversed(), key = { it.id }) { workout ->
                     WorkoutListCard(
                         workout = workout,
                         onRunWorkout = onRunWorkout,

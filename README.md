@@ -1,9 +1,10 @@
 #   Gym Tracker
 
 ##  To Do list
+-   Dropdowns for exercise field in Workouts
+-   Dropdowns for exercises in ExAddScreen
 
 ### High priority
--   Change recent activity to the last 3 weeks, and group by workout
 -   Add graphs of the best rating of exercises
     -   volume
     -   last set reps
@@ -31,6 +32,8 @@
 -   There is no checking for integrity of the JSON file on import
 
 ##  Done
+-   FIXED: The home screen loads sluggishly
+-   Change recent activity to the last 3 weeks, and group by workout
 -   Add editing and deletion to the Workouts list screen
 -   Add TSV export
 -   Change sorting on home screen and progress screen to by timestamp
