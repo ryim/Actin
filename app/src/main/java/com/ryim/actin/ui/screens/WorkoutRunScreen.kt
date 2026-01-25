@@ -56,6 +56,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ryim.actin.ui.ExAddPrefill
+import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
 import com.ryim.actin.ui.WorkoutRunScreenViewModel
@@ -122,60 +123,14 @@ fun WorkoutRunScreen(
         },
 
         bottomBar = {
-
-            var selectedItem by remember { mutableIntStateOf(2) }
-
-            val navBarItemColors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.secondary,
-                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            AppBottomBar(
+                selectedItem = 2,
+                onHome = onHome,
+                onProgress = onProgress,
+                onExercise = onExercise,
+                onSettings = onSettings
             )
-
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 4.dp
-            ) {
-
-                // Home
-                NavigationBarItem(
-                    selected = selectedItem == 0,
-                    onClick = onHome,
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    colors = navBarItemColors
-                )
-
-                // Progress
-                NavigationBarItem(
-                    selected = selectedItem == 1,
-                    onClick = onProgress,
-                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Home") },
-                    label = { Text("Progress") },
-                    colors = navBarItemColors
-                )
-
-                // Exercise configuration
-                NavigationBarItem(
-                    selected = selectedItem == 2,
-                    onClick = onExercise,
-                    icon = { Icon(Icons.Default.EditNote, contentDescription = "Placeholder 2") },
-                    label = { Text("Workouts") },
-                    colors = navBarItemColors
-                )
-
-                // --- Settings ---
-                NavigationBarItem(
-                    selected = selectedItem == 4,
-                    onClick = onSettings,
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
-                    colors = navBarItemColors
-                )
-            }
         }
-
 
     ) { innerPadding ->
         Column(

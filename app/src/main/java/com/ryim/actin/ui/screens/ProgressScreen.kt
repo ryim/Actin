@@ -71,6 +71,7 @@ import com.ryim.actin.domain.formatTimestampPretty
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.ProgressScreenViewModel
+import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.WeeklyCount
 import kotlinx.datetime.LocalDate
@@ -143,58 +144,13 @@ fun ProgressScreen(
         },
 
         bottomBar = {
-
-            var selectedItem by remember { mutableIntStateOf(1) }
-
-            val navBarItemColors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.secondary,
-                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            AppBottomBar(
+                selectedItem = 1,
+                onHome = onHome,
+                onProgress = onProgress,
+                onExercise = onExercise,
+                onSettings = onSettings
             )
-
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 4.dp
-            ) {
-
-                // Home
-                NavigationBarItem(
-                    selected = selectedItem == 0,
-                    onClick = onHome,
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    colors = navBarItemColors
-                )
-
-                // Progress
-                NavigationBarItem(
-                    selected = selectedItem == 1,
-                    onClick = onProgress,
-                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Progress") },
-                    label = { Text("Progress") },
-                    colors = navBarItemColors
-                )
-
-                // Exercise configuration
-                NavigationBarItem(
-                    selected = selectedItem == 2,
-                    onClick = onExercise,
-                    icon = { Icon(Icons.Default.EditNote, contentDescription = "Workouts") },
-                    label = { Text("Workouts") },
-                    colors = navBarItemColors
-                )
-
-                // --- Settings ---
-                NavigationBarItem(
-                    selected = selectedItem == 4,
-                    onClick = onSettings,
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
-                    colors = navBarItemColors
-                )
-            }
         }
 
     ) { innerPadding ->
