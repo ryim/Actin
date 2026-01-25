@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +17,6 @@ import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.screens.EditWorkoutScreen
 import com.ryim.actin.ui.screens.HomeScreen
 import com.ryim.actin.ui.screens.ExAddEditScreen
-import com.ryim.actin.ui.screens.TimerScreen
 import com.ryim.actin.ui.screens.ProgressScreen
 import com.ryim.actin.ui.screens.WorkoutListScreen
 import com.ryim.actin.ui.screens.SettingScreen
@@ -119,31 +117,37 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             val listViewModel: WorkoutListScreenViewModel = hiltViewModel()
 
             WorkoutListScreen(
+                sharedWorkoutViewModel = sharedWorkoutViewModel,
                 onHome = { navController.navigate("home") },
                 onProgress = { navController.navigate("ProgressScreen") },
                 onExercise = { navController.navigate("WorkoutListScreen") },
                 onSettings = { navController.navigate("SettingScreen") },
                 onNewWorkout = { navController.navigate("WorkoutEditScreen") },
+
                 onRunWorkout = { workout ->
                     sharedWorkoutViewModel.selectWorkout(workout)
                     navController.navigate("WorkoutRunScreen")
                 },
-                navController = navController,
-                sharedWorkoutViewModel = sharedWorkoutViewModel,
-                viewModel = listViewModel,
+
+                onEditWorkout = { workout ->
+                    sharedWorkoutViewModel.selectWorkout(workout)
+                    navController.navigate("WorkoutEditScreen")
+                },
+
                 onDeleteWorkout = { workout ->
                     listViewModel.deleteWorkout(workout)
-                }
+                },
+                navController = navController,
+                viewModel = listViewModel
             )
         }
+
 
         composable("WorkoutRunScreen") { backStackEntry ->
 
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("root")
             }
-
-            val sharedWorkoutViewModel: SharedWorkoutViewModel = hiltViewModel(parentEntry)
             val sharedExAddViewModel: SharedExAddViewModel = hiltViewModel(parentEntry)
 
             WorkoutRunScreen(

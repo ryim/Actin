@@ -3,7 +3,6 @@ package com.ryim.actin.ui.screens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,20 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -42,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.R
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SettingScreenViewModel
 import kotlinx.coroutines.launch
 import com.ryim.actin.ui.theme.loadDarkMode
@@ -85,7 +75,7 @@ fun SettingScreen(
     //  Launcher for TSV export
     var pendingTsv by remember { mutableStateOf<String?>(null) }
 
-    val TSVExportLauncher = rememberLauncherForActivityResult(
+    val tsvExportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/tab-separated-values")
     ) { uri ->
         if (uri != null && pendingTsv != null) {
@@ -94,7 +84,6 @@ fun SettingScreen(
             }
         }
     }
-
 
     //  The main part of the composable
     Scaffold(
@@ -146,7 +135,7 @@ fun SettingScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+//            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
             // --- Toggle 1 ---
@@ -210,17 +199,7 @@ fun SettingScreen(
                 )
             }
 
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-            )
-
-            Text(
-                "Timer settings",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
-            )
+            SectionHeader("Timer settings")
 
             // Global timer toggle
             Row(
@@ -241,96 +220,76 @@ fun SettingScreen(
                 )
             }
 
-            HorizontalDivider(
+           SectionHeader("Exercise data management")
+
+            // Import data
+            Box(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-            )
-
-            Text(
-                "Exercise data management",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
-            )
-
-                // Import data
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
+                    .weight(1f)
 //                        .height(64.dp)
-                        .background(MaterialTheme.colorScheme.surface),
-                    contentAlignment = Alignment.Center
+                    .background(MaterialTheme.colorScheme.surface)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        importLauncher.launch(arrayOf("application/json"))
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Button(
-                        onClick = {
-                            importLauncher.launch(arrayOf("application/json"))
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("Import JSON")
-                    }
+                    Text("Import JSON")
                 }
+            }
 
-                // Export data
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-//                        .height(64.dp)
-                        .background(MaterialTheme.colorScheme.surface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = {
-                            exportLauncher.launch("exercises.json")
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("Export JSON")
-                    }
-                }
-
-                // Export TSV
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-//                        .height(64.dp)
-                        .background(MaterialTheme.colorScheme.surface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = {
-                            viewModel.requestTsvExport { tsv ->
-                                pendingTsv = tsv
-                                TSVExportLauncher.launch("exercises_export.tsv")
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("Export TSV")
-                    }
-                }
-//            }
-
-            HorizontalDivider(
+            // Export data
+            Box(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-            )
+                    .weight(1f)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        exportLauncher.launch("exercises.json")
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Export JSON")
+                }
+            }
 
-            Text(
-                "Other",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
-            )
+            // Export TSV
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        viewModel.requestTsvExport { tsv ->
+                            pendingTsv = tsv
+                            tsvExportLauncher.launch("exercises_export.tsv")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Export TSV")
+                }
+            }
+
+            SectionHeader("Other")
 
             Box(
                 modifier = Modifier
@@ -347,6 +306,24 @@ fun SettingScreen(
                     )
                 ) {
                     Text("About")
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = { /* To do! */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary, // different from box
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("License")
                 }
             }
         }

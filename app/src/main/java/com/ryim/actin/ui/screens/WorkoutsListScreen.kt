@@ -1,6 +1,5 @@
 package com.ryim.actin.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,13 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,16 +27,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,20 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.ryim.actin.R
-import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.workouts.Workout
-import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
 
@@ -75,9 +59,9 @@ fun WorkoutListScreen(
     onExercise: () -> Unit,
     onSettings: () -> Unit,
     onNewWorkout: () -> Unit,
-    onRunWorkout: (Workout) -> Unit,
     navController: NavHostController,
     sharedWorkoutViewModel: SharedWorkoutViewModel,
+    onRunWorkout: (Workout) -> Unit,
     viewModel: WorkoutListScreenViewModel,
     onEditWorkout: (Workout) -> Unit = { selected ->
         sharedWorkoutViewModel.selectWorkout(selected)
@@ -228,20 +212,20 @@ fun WorkoutListCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .fillMaxWidth(),
+//                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title on the left, allowed to wrap under the button
-                Text(
-                    text = workout.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .weight(1f)   // take all remaining space
-                        .padding(end = 8.dp)  // small spacing before button
-                )
+                Column (
+                    modifier = Modifier.weight(1f)
+                ) {
+                    SectionHeader(
+                        title = workout.name
+                    )
+                }
 
                 // Start button on the right
                 Button(

@@ -70,6 +70,7 @@ import com.ryim.actin.domain.localDate
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -174,19 +175,7 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                "Last seven days",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
-            )
-
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+            SectionHeader("Last 7 days")
 
             Spacer(modifier = Modifier.height(6.dp))
 
@@ -294,21 +283,7 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                "Recent activity",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
-            )
-
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+           SectionHeader("Recent activity")
 
             // History list for the exercises
             var entryToDelete by remember { mutableStateOf<ExerciseEntry?>(null) }

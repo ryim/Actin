@@ -57,6 +57,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
 import com.ryim.actin.ui.WorkoutRunScreenViewModel
@@ -139,31 +140,23 @@ fun WorkoutRunScreen(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Spacer(modifier = Modifier.height(16.dp))
+            val selectedWorkout by sharedWorkoutViewModel.selectedWorkout.collectAsState()
 
-
-            LazyColumn(
-                modifier = Modifier
-//                    .padding(innerPadding)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(viewModel.workouts, key = { it.id }) { workout ->
-                    WorkoutCard(
-                        workout = workout,
-                        history = viewModel.uiState.collectAsState().value.allExercises,
-                        onEditExercise = { exerciseName ->
-                            handleExerciseEdit(
-                                exerciseName = exerciseName,
-                                sharedWorkoutViewModel = sharedWorkoutViewModel,
-                                sharedExAddViewModel = sharedExAddViewModel,
-                                history = viewModel.uiState.value.allExercises,
-                                onNavigateToExAdd = onNavigateToExAdd
-                            )
-                        }
-                    )
-                }
+            selectedWorkout?.let { workout ->
+                WorkoutCard(
+                    workout = workout,
+                    history = viewModel.uiState.collectAsState().value.allExercises,
+                    onEditExercise = { exerciseName ->
+                        handleExerciseEdit(
+                            exerciseName = exerciseName,
+                            sharedWorkoutViewModel = sharedWorkoutViewModel,
+                            sharedExAddViewModel = sharedExAddViewModel,
+                            history = viewModel.uiState.value.allExercises,
+                            onNavigateToExAdd = onNavigateToExAdd
+                        )
+                    },
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
     }
@@ -212,10 +205,11 @@ fun handleExerciseEdit(
 fun WorkoutCard(
     workout: Workout,
     history: List<ExerciseEntry>,
-    onEditExercise: (String) -> Unit
+    onEditExercise: (String) -> Unit,
+    modifier: Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -224,11 +218,7 @@ fun WorkoutCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Workout name
-            Text(
-                text = workout.name,
-                style = MaterialTheme.typography.titleMedium
-            )
+            SectionHeader(workout.name)
 
             // Exercises
             workout.exercises.forEach { exercise ->
