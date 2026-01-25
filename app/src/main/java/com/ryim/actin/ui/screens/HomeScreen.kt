@@ -70,6 +70,7 @@ import com.ryim.actin.domain.localDate
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
 import kotlinx.datetime.Clock
@@ -114,43 +115,8 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 12.dp),
-                    ) {
-                        Text(
-                            "Actin",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Image(
-                        painter = painterResource(R.drawable.logo8),
-                        contentDescription = "App icon",
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(54.dp)
-                    )
-
-                },
-//                actions = {
-//                    // Button to add new exercise
-//                    Box(
-//                        modifier = Modifier
-//                            .background(MaterialTheme.colorScheme.primary)
-//                            .padding(end = 12.dp),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//
-//                    }
-//                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            AppTopBar(
+                title = "Actin"
             )
         },
 

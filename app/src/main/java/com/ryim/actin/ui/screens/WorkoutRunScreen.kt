@@ -1,26 +1,14 @@
 package com.ryim.actin.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,26 +16,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ryim.actin.R
 import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.workouts.Workout
 import java.time.LocalDate
@@ -57,6 +34,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
@@ -94,32 +72,8 @@ fun WorkoutRunScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 12.dp),
-                    ) {
-                        Text(
-                            workout?.name ?: "Unnamed workout",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.logo8),
-                        contentDescription = "App icon",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(54.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            AppTopBar(
+                title = workout?.name ?: "Unnamed workout"
             )
         },
 

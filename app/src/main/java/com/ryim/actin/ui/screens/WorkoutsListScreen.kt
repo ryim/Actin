@@ -47,6 +47,7 @@ import androidx.navigation.NavHostController
 import com.ryim.actin.R
 import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
@@ -82,32 +83,8 @@ fun WorkoutListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 12.dp),
-                    ) {
-                        Text(
-                            "Workouts",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.logo8),
-                        contentDescription = "App icon",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(54.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            AppTopBar(
+                title = "Workouts"
             )
         },
 

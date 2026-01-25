@@ -72,6 +72,7 @@ import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.WeeklyCount
 import kotlinx.datetime.LocalDate
@@ -114,35 +115,10 @@ fun ProgressScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 12.dp),
-                    ) {
-                        Text(
-                            "Progress",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.logo8),
-                        contentDescription = "App icon",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(54.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            AppTopBar(
+                title = "Progress"
             )
         },
-
         bottomBar = {
             AppBottomBar(
                 selectedItem = 1,

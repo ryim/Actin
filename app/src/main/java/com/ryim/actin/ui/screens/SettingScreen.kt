@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.R
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
+import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SettingScreenViewModel
 import kotlinx.coroutines.launch
@@ -88,33 +89,8 @@ fun SettingScreen(
     //  The main part of the composable
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 12.dp),
-//                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "Settings",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.logo8),
-                        contentDescription = "App icon",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(54.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            AppTopBar(
+                title = "Settings"
             )
         },
 
