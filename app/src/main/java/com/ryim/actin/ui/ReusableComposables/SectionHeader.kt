@@ -15,13 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SectionHeader(title: String, modifier: Modifier = Modifier) {
+fun SectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    gapAbove: Boolean = true) {
     Box(
         modifier = modifier
             .fillMaxWidth()
     ) {
         Column {
-            Spacer(modifier = Modifier.height(6.dp))
+            if (gapAbove) {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
 
             Text(
                 text = title,
@@ -36,6 +41,8 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier) {
                 thickness = 2.dp,
                 color = MaterialTheme.colorScheme.tertiary
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
         }
     }
 }

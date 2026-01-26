@@ -1,10 +1,10 @@
 #   Gym Tracker
 
 ##  To Do list
--   Dropdowns for exercise field in Workouts
--   Dropdowns for exercises in ExAddScreen
 
 ### High priority
+-   Dropdowns for exercise field in Workouts
+-   Dropdowns for exercises in ExAddScreen
 -   Add graphs of the best rating of exercises
     -   volume
     -   last set reps

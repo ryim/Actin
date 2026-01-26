@@ -172,7 +172,10 @@ fun WorkoutCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            SectionHeader(workout.name)
+            SectionHeader(
+                title = workout.name,
+                gapAbove = false
+            )
 
             // Exercises
             workout.exercises.forEach { exercise ->

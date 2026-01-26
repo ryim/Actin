@@ -198,111 +198,90 @@ fun SettingScreen(
 
            SectionHeader("Exercise data management")
 
-            // Import data
-            Box(
+            CenteredActionButton(
+                text = "Import JSON",
+                onClick = {
+                    importLauncher.launch(arrayOf("application/json"))
+                },
                 modifier = Modifier
-                    .weight(1f)
-//                        .height(64.dp)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        importLauncher.launch(arrayOf("application/json"))
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Import JSON")
-                }
-            }
+            )
 
-            // Export data
-            Box(
+            CenteredActionButton(
+                text = "Export JSON",
+                onClick = {
+                    exportLauncher.launch("exercises.json")
+                },
                 modifier = Modifier
-                    .weight(1f)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        exportLauncher.launch("exercises.json")
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Export JSON")
-                }
-            }
+            )
 
-            // Export TSV
-            Box(
+            CenteredActionButton(
+                text = "Export TSV",
+                onClick = {
+                    viewModel.requestTsvExport { tsv ->
+                        pendingTsv = tsv
+                        tsvExportLauncher.launch("exercises_export.tsv")
+                    }
+                },
                 modifier = Modifier
-                    .weight(1f)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        viewModel.requestTsvExport { tsv ->
-                            pendingTsv = tsv
-                            tsvExportLauncher.launch("exercises_export.tsv")
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Export TSV")
-                }
-            }
+            )
+
+            SectionHeader("Workout data management")
+
+            CenteredActionButton(
+                text = "Import JSON (To do)",
+                onClick = {
+//                    importLauncher.launch(arrayOf("application/json"))
+                },
+                modifier = Modifier
+            )
+
+            CenteredActionButton(
+                text = "Export JSON (To do)",
+                onClick = {
+//                    exportLauncher.launch("exercises.json")
+                },
+                modifier = Modifier
+            )
 
             SectionHeader("Other")
 
-            Box(
+            CenteredActionButton(
+                text = "About",
+                onClick = { /* To do! */ },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .background(MaterialTheme.colorScheme.surface),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = { /* To do! */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // different from box
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("About")
-                }
-            }
+            )
 
-            Box(
+            CenteredActionButton(
+                text = "License",
+                onClick = { /* To do! */ },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .background(MaterialTheme.colorScheme.surface),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = { /* To do! */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // different from box
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("License")
-                }
-            }
+            )
         }
 
+    }
+}
+
+@Composable
+fun CenteredActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = onClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            )
+        ) {
+            Text(text)
+        }
     }
 }

@@ -200,7 +200,8 @@ fun WorkoutListCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     SectionHeader(
-                        title = workout.name
+                        title = workout.name,
+                        gapAbove = false
                     )
                 }
 
