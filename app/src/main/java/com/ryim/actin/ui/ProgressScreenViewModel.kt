@@ -14,7 +14,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-//import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
@@ -41,7 +40,7 @@ class ProgressScreenViewModel @Inject constructor(
             val all = repo.loadExercises()
 
             // Convert timestamp → LocalDate (user’s timezone)
-            fun ExerciseEntry.date(): kotlinx.datetime.LocalDate =
+            fun ExerciseEntry.date(): LocalDate =
                 Instant.parse(timestamp!!)
                     .toLocalDateTime(TimeZone.currentSystemDefault())
                     .date
@@ -52,7 +51,7 @@ class ProgressScreenViewModel @Inject constructor(
             }
 
             // Today’s date in local timezone
-            val today: kotlinx.datetime.LocalDate =
+            val today: LocalDate =
                 Clock.System.now()
                     .toLocalDateTime(TimeZone.currentSystemDefault())
                     .date

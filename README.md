@@ -11,6 +11,7 @@
     -   best reps
     -   Drop-downs for existing exercises
     -   Last 3 months, last 6 months, last year
+-   Filter full history by personal bests or latest
 
 ### Medium priority
 -   Workout JSON export
