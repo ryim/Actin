@@ -153,7 +153,7 @@ class ProgressScreenViewModel @Inject constructor(
 enum class MetricType(val label: String) {
     TOTAL_REPS("Total reps"),
     TOTAL_VOLUME("Total volume"),
-    ALL_REPS("All reps (per set)")
+    ALL_REPS("Reps per set")
 }
 
 data class DataPoint(

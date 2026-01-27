@@ -1,17 +1,24 @@
 package com.ryim.actin.ui.screens.ProgressScreenTabs
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -274,8 +281,23 @@ fun MetricSelector(
     var expanded by remember { mutableStateOf(false) }
 
     Box {
-        OutlinedButton(onClick = { expanded = true }) {
-            Text(selectedMetric.label)
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+            ) {
+                Text(selectedMetric.label)
+
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Select metric"
+                )
+            }
         }
 
         DropdownMenu(
@@ -296,6 +318,7 @@ fun MetricSelector(
 }
 
 
+
 @Composable
 fun LineGraph(
     lines: List<List<DataPoint>>,
@@ -312,7 +335,7 @@ fun LineGraph(
 ) {
     if (lines.isEmpty() || lines.all { it.isEmpty() }) return
 
-    var selectedIndex by remember { mutableStateOf(-1) }
+//    var selectedIndex by remember { mutableStateOf(-1) }
 
     // Flatten all points to compute global X/Y scales
     val allPoints = lines.flatten().sortedBy { it.date }
@@ -337,31 +360,31 @@ fun LineGraph(
 
     Canvas(
         modifier = modifier
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val pos = event.changes.firstOrNull()?.position ?: continue
-
-                        val chartLeftPadding = 80f
-                        val chartBottomPadding = 60f
-                        val chartWidth = size.width - chartLeftPadding
-
-                        val xScale = if (maxX == 0f) 1f else chartWidth / maxX
-
-                        val x = pos.x - chartLeftPadding
-                        if (x >= 0f) {
-                            val dayOffset = x / xScale
-
-                            // Find nearest point across ALL lines
-                            val nearest = allXOffsets.indexOfFirst { abs(it - dayOffset) < 0.5f }
-                            if (nearest != -1) selectedIndex = nearest
-                        }
-
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
+//            .pointerInput(Unit) {
+//                awaitPointerEventScope {
+//                    while (true) {
+//                        val event = awaitPointerEvent()
+//                        val pos = event.changes.firstOrNull()?.position ?: continue
+//
+//                        val chartLeftPadding = 80f
+//                        val chartBottomPadding = 60f
+//                        val chartWidth = size.width - chartLeftPadding
+//
+//                        val xScale = if (maxX == 0f) 1f else chartWidth / maxX
+//
+//                        val x = pos.x - chartLeftPadding
+//                        if (x >= 0f) {
+//                            val dayOffset = x / xScale
+//
+//                            // Find nearest point across ALL lines
+//                            val nearest = allXOffsets.indexOfFirst { abs(it - dayOffset) < 0.5f }
+//                            if (nearest != -1) selectedIndex = nearest
+//                        }
+//
+//                        event.changes.forEach { it.consume() }
+//                    }
+//                }
+//            }
     ) {
         val chartLeftPadding = 80f
         val chartBottomPadding = 60f
@@ -452,17 +475,17 @@ fun LineGraph(
             )
         }
 
-        // --- Draw selected point indicator ---
-        if (selectedIndex in allPoints.indices) {
-            val selectedPoint = allPoints[selectedIndex]
-            val x = chartLeftPadding + allXOffsets[selectedIndex] * xScale
-            val y = chartHeight - (selectedPoint.value - minY) * yScale
-
-            drawCircle(
-                color = Color.Red,
-                radius = 10f,
-                center = Offset(x, y)
-            )
-        }
+//        // --- Draw selected point indicator ---
+//        if (selectedIndex in allPoints.indices) {
+//            val selectedPoint = allPoints[selectedIndex]
+//            val x = chartLeftPadding + allXOffsets[selectedIndex] * xScale
+//            val y = chartHeight - (selectedPoint.value - minY) * yScale
+//
+//            drawCircle(
+//                color = Color.Red,
+//                radius = 10f,
+//                center = Offset(x, y)
+//            )
+//        }
     }
 }
