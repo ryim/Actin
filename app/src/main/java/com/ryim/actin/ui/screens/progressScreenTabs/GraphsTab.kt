@@ -89,7 +89,7 @@ fun GraphsTab(
                 .padding(16.dp)
         )
 
-        SectionHeader("Detailed metrics")
+        SectionHeader("Performance by exercise")
         Spacer(modifier = Modifier.height(24.dp))
 
         GraphSelectors(

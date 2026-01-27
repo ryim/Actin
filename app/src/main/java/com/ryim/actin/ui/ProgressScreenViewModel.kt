@@ -58,7 +58,7 @@ class ProgressScreenViewModel @Inject constructor(
 
             // Pick a default selected exercise
             // Option A: first alphabetically
-            val defaultExercise = uniqueNames.firstOrNull()
+            val defaultExercise = sorted.firstOrNull()?.name
 
             // Today’s date in local timezone
             val today: LocalDate =
