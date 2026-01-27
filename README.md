@@ -3,18 +3,20 @@
 ##  To Do list
 
 ### High priority
+-   Introduce UUIDs for exercises, so deleting them and editing them actually works properly
 -   Dropdowns for exercise field in Workouts
 -   Dropdowns for exercises in ExAddScreen
 -   Add graphs of the best rating of exercises
-    -   volume
-    -   last set reps
-    -   best reps
+    -   volume                                      [x]
+    -   last set reps                               [ ]
+    -   all reps                                    [x]
+    -   Total reps                                  [x]
     -   Drop-downs for existing exercises
     -   Last 3 months, last 6 months, last year
 -   Filter full history by personal bests or latest
 
 ### Medium priority
--   Workout JSON export
+-   JSON export for Workouts
 -   Add a warning that importing data overwrites the existing data.
 
 ### Low priority

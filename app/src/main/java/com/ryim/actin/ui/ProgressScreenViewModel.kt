@@ -88,16 +88,78 @@ class ProgressScreenViewModel @Inject constructor(
         }
     }
 
-
-
     fun deleteExercise(entry: ExerciseEntry) {
         viewModelScope.launch {
             repo.deleteExercise(entry.name, entry.day, entry.month, entry.year)
             loadHistory()   // refresh both lists
         }
     }
+
+    //  Stuff for the changeable graph
+    fun updateGraphData(
+        exerciseName: String,
+        metric: MetricType
+    ) {
+        val entries = uiState.value.allExercises
+            .filter { it.name == exerciseName }
+            .sortedBy { it.timestamp }
+
+        when (metric) {
+
+            MetricType.ALL_REPS -> {
+                // Up to 6 lines, one per rep index
+                val series = List(6) { mutableListOf<DataPoint>() }
+
+                entries.forEach { entry ->
+                    val date = entry.timestamp
+                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.UTC).date }
+                        ?: LocalDate(entry.year, entry.month, entry.day)
+
+                    entry.reps.take(6).forEachIndexed { index, reps ->
+                        series[index].add(DataPoint(date, reps.toFloat()))
+                    }
+                }
+
+                _uiState.update { it.copy(multiGraphData = series) }
+            }
+
+            MetricType.TOTAL_REPS,
+            MetricType.TOTAL_VOLUME -> {
+                val sorted = entries.map { entry ->
+
+                    val date = entry.timestamp
+                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.UTC).date }
+                        ?: LocalDate(entry.year, entry.month, entry.day)
+
+                    val totalReps = entry.reps.sum()
+                    val totalVolume = entry.reps.zip(entry.weights) { r, w -> r * w }.sum()
+
+                    val yValue = when (metric) {
+                        MetricType.TOTAL_REPS -> totalReps.toFloat()
+                        MetricType.TOTAL_VOLUME -> totalVolume
+                        else -> 0f
+                    }
+
+                    DataPoint(date, yValue)
+                }
+                    .sortedBy { it.date }
+
+                _uiState.update { it.copy(multiGraphData = listOf(sorted)) }
+            }
+        }
+    }
 }
 
+enum class MetricType(val label: String) {
+    TOTAL_REPS("Total reps"),
+    TOTAL_VOLUME("Total volume"),
+    ALL_REPS("All reps (per set)")
+}
+
+data class DataPoint(
+    val date: LocalDate,
+    val value: Float
+)
 
 data class WeeklyCount(
     val weekStart: LocalDate,
@@ -106,5 +168,7 @@ data class WeeklyCount(
 
 data class FullHistoryUIState(
     val allExercises: List<ExerciseEntry> = emptyList(),
-    val weeklyCounts: List<WeeklyCount> = emptyList()
+    val weeklyCounts: List<WeeklyCount> = emptyList(),
+    val graphData: List<DataPoint> = emptyList(),
+    val multiGraphData: List<List<DataPoint>> = emptyList()
 )

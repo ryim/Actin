@@ -115,6 +115,7 @@ fun ProgressScreen(
 
             when (selectedTab) {
                 0 -> GraphsTab(
+                    viewModel = viewModel,
                     uiState = uiState
                 )
                 1 -> FullHistoryTab(

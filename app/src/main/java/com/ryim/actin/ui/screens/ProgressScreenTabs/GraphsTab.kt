@@ -1,16 +1,22 @@
 package com.ryim.actin.ui.screens.ProgressScreenTabs
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,37 +32,48 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import com.ryim.actin.ui.DataPoint
 import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.WeeklyCount
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import com.ryim.actin.ui.MetricType
+import com.ryim.actin.ui.ProgressScreenViewModel
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 @Composable
 fun GraphsTab(
+    viewModel: ProgressScreenViewModel,
     uiState: FullHistoryUIState,
 ) {
+    val scrollState = rememberScrollState()
+
+    //  ?? Temp
+    val exerciseName = "In lbs"
+
+    // Update graph whenever metric changes
+    var selectedMetric by remember { mutableStateOf(MetricType.TOTAL_REPS) }
+    LaunchedEffect(selectedMetric, exerciseName) {
+        viewModel.updateGraphData(exerciseName, selectedMetric)
+    }
+
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            "Recent exercises",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.align(Alignment.Start)
-                .padding(horizontal = 16.dp)
-        )
-
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        SectionHeader("Recent exercises")
 
         WeeklyBarChart(
             barColor = MaterialTheme.colorScheme.secondary,
@@ -68,8 +85,31 @@ fun GraphsTab(
                 .padding(16.dp)
         )
 
-        // Your existing list UI using uiState.allExercises
+        SectionHeader("Detailed metrics")
+        Spacer(modifier = Modifier.height(24.dp))
 
+        MetricSelector(
+            selectedMetric = selectedMetric,
+            onMetricSelected = { selectedMetric = it }
+        )
+        Spacer(Modifier.height(16.dp))
+
+        LineGraph(
+            lines = uiState.multiGraphData,
+            colors = listOf(
+                MaterialTheme.colorScheme.secondary,
+                MaterialTheme.colorScheme.tertiary,
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.error,
+                MaterialTheme.colorScheme.outline,
+                MaterialTheme.colorScheme.inversePrimary
+            ),
+            labelColor = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp)
+        )
     }
 }
 
@@ -224,4 +264,205 @@ fun WeeklyBarChart(
     }
 }
 
-private fun Float.ceilToInt(): Int = kotlin.math.ceil(this).toInt()
+private fun Float.ceilToInt(): Int = ceil(this).toInt()
+
+@Composable
+fun MetricSelector(
+    selectedMetric: MetricType,
+    onMetricSelected: (MetricType) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        OutlinedButton(onClick = { expanded = true }) {
+            Text(selectedMetric.label)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            MetricType.values().forEach { metric ->
+                DropdownMenuItem(
+                    text = { Text(metric.label) },
+                    onClick = {
+                        expanded = false
+                        onMetricSelected(metric)
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LineGraph(
+    lines: List<List<DataPoint>>,
+    modifier: Modifier = Modifier,
+    colors: List<Color> = listOf(
+        Color.Cyan,
+        Color.Red,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Blue
+    ),
+    labelColor: Color = Color.Black
+) {
+    if (lines.isEmpty() || lines.all { it.isEmpty() }) return
+
+    var selectedIndex by remember { mutableStateOf(-1) }
+
+    // Flatten all points to compute global X/Y scales
+    val allPoints = lines.flatten().sortedBy { it.date }
+    val startDate = allPoints.first().date
+
+    // Global X offsets
+    val allXOffsets = allPoints.map { startDate.daysUntil(it.date).toFloat() }
+    val maxX = allXOffsets.maxOrNull() ?: 0f
+
+    // Global Y range
+    val minY = allPoints.minOf { it.value }
+    val maxY = allPoints.maxOf { it.value }.coerceAtLeast(minY + 1f)
+
+    // Text paint for labels
+    val textPaint = remember {
+        android.graphics.Paint().apply {
+            color = labelColor.toArgb()
+            textSize = 28f
+            isAntiAlias = true
+        }
+    }
+
+    Canvas(
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val pos = event.changes.firstOrNull()?.position ?: continue
+
+                        val chartLeftPadding = 80f
+                        val chartBottomPadding = 60f
+                        val chartWidth = size.width - chartLeftPadding
+
+                        val xScale = if (maxX == 0f) 1f else chartWidth / maxX
+
+                        val x = pos.x - chartLeftPadding
+                        if (x >= 0f) {
+                            val dayOffset = x / xScale
+
+                            // Find nearest point across ALL lines
+                            val nearest = allXOffsets.indexOfFirst { abs(it - dayOffset) < 0.5f }
+                            if (nearest != -1) selectedIndex = nearest
+                        }
+
+                        event.changes.forEach { it.consume() }
+                    }
+                }
+            }
+    ) {
+        val chartLeftPadding = 80f
+        val chartBottomPadding = 60f
+
+        val chartWidth = size.width - chartLeftPadding
+        val chartHeight = size.height - chartBottomPadding
+
+        val xScale = if (maxX == 0f) 1f else chartWidth / maxX
+        val yScale = chartHeight / (maxY - minY)
+
+        // --- Compute Y-axis ticks (rounded UP, no extra tick below data) ---
+        val maxTicks = 4
+        val rawStep = ((maxY - minY) / maxTicks).roundToInt().coerceAtLeast(1)
+
+        val yAxisMin = ((minY + rawStep - 1) / rawStep).toInt() * rawStep
+        val yAxisMax = ((maxY + rawStep - 1) / rawStep).toInt() * rawStep
+
+        // --- Draw Y-axis grid lines + labels ---
+        for (value in yAxisMin..yAxisMax step rawStep) {
+            val y = chartHeight - (value - minY) * yScale
+
+            drawLine(
+                color = Color.LightGray.copy(alpha = 0.4f),
+                start = Offset(chartLeftPadding, y),
+                end = Offset(size.width, y),
+                strokeWidth = 2f
+            )
+
+            drawContext.canvas.nativeCanvas.drawText(
+                value.toString(),
+                chartLeftPadding - 30f,
+                y + 10f,
+                textPaint
+            )
+        }
+
+        // --- X-axis ticks at regular intervals ---
+        val tickIntervalDays = 7  // weekly ticks
+        val xAxisTicks = (0..maxX.toInt() step tickIntervalDays).toList()
+
+        xAxisTicks.forEach { dayOffset ->
+            val x = chartLeftPadding + dayOffset * xScale
+
+            val date = startDate.plus(dayOffset, DateTimeUnit.DAY)
+
+            val label = date.format(
+                LocalDate.Format {
+                    dayOfMonth()
+                    char(' ')
+                    monthName(MonthNames.ENGLISH_ABBREVIATED)
+                }
+            )
+
+            drawContext.canvas.nativeCanvas.save()
+            drawContext.canvas.nativeCanvas.translate(x, size.height - 20f)
+            drawContext.canvas.nativeCanvas.rotate(-30f)
+            textPaint.textAlign = android.graphics.Paint.Align.RIGHT
+            drawContext.canvas.nativeCanvas.drawText(
+                label,
+                0f,
+                0f,
+                textPaint
+            )
+            drawContext.canvas.nativeCanvas.restore()
+        }
+
+        // --- Draw each line series ---
+        lines.forEachIndexed { lineIndex, series ->
+            if (series.isEmpty()) return@forEachIndexed
+
+            val sortedSeries = series.sortedBy { it.date }
+            val seriesOffsets = sortedSeries.map { startDate.daysUntil(it.date).toFloat() }
+
+            val path = Path()
+
+            sortedSeries.forEachIndexed { i, point ->
+                val x = chartLeftPadding + seriesOffsets[i] * xScale
+                val y = chartHeight - (point.value - minY) * yScale
+
+                if (i == 0) path.moveTo(x, y)
+                else path.lineTo(x, y)
+            }
+
+            drawPath(
+                path = path,
+                color = colors[lineIndex % colors.size],
+                style = Stroke(width = 4f)
+            )
+        }
+
+        // --- Draw selected point indicator ---
+        if (selectedIndex in allPoints.indices) {
+            val selectedPoint = allPoints[selectedIndex]
+            val x = chartLeftPadding + allXOffsets[selectedIndex] * xScale
+            val y = chartHeight - (selectedPoint.value - minY) * yScale
+
+            drawCircle(
+                color = Color.Red,
+                radius = 10f,
+                center = Offset(x, y)
+            )
+        }
+    }
+}
