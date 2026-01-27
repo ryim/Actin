@@ -1,4 +1,4 @@
-package com.ryim.actin.ui.screens.ProgressScreenTabs
+package com.ryim.actin.ui.screens.progressScreenTabs
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +54,6 @@ import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
-import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -65,13 +64,9 @@ fun GraphsTab(
 ) {
     val scrollState = rememberScrollState()
 
-    //  ?? Temp
-    val exerciseName = "In lbs"
-
     // Update graph whenever metric changes
-    var selectedMetric by remember { mutableStateOf(MetricType.TOTAL_REPS) }
-    LaunchedEffect(selectedMetric, exerciseName) {
-        viewModel.updateGraphData(exerciseName, selectedMetric)
+    LaunchedEffect(uiState.selectedMetric, uiState.selectedExerciseName) {
+        viewModel.updateGraphData(uiState.selectedExerciseName, uiState.selectedMetric)
     }
 
     Column(
@@ -96,9 +91,21 @@ fun GraphsTab(
         Spacer(modifier = Modifier.height(24.dp))
 
         MetricSelector(
-            selectedMetric = selectedMetric,
-            onMetricSelected = { selectedMetric = it }
+            uiState = uiState,
+            onMetricSelected = { metric ->
+                uiState.selectedExerciseName?.let { exercise ->
+                    viewModel.setMetric(metric, exercise)
+                }
+            }
         )
+
+        ExerciseSelector(
+            uiState = uiState,
+            onExerciseSelected = { name ->
+                viewModel.setSelectedExercise(name)
+            }
+        )
+
         Spacer(Modifier.height(16.dp))
 
         LineGraph(
@@ -154,7 +161,7 @@ fun WeeklyBarChart(
 
                         // Compute layout constants here too
                         val chartLeftPadding = 80f
-                        val chartBottomPadding = 60f
+//                        val chartBottomPadding = 60f
                         val chartWidth = size.width - chartLeftPadding
                         val barWidth = chartWidth / data.size
 
@@ -275,7 +282,7 @@ private fun Float.ceilToInt(): Int = ceil(this).toInt()
 
 @Composable
 fun MetricSelector(
-    selectedMetric: MetricType,
+    uiState: FullHistoryUIState,
     onMetricSelected: (MetricType) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -291,11 +298,14 @@ fun MetricSelector(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
             ) {
-                Text(selectedMetric.label)
+                Text(
+                    uiState.selectedMetric.label,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
 
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Select metric"
+                    contentDescription = "Select metric",
                 )
             }
         }
@@ -304,7 +314,7 @@ fun MetricSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            MetricType.values().forEach { metric ->
+            MetricType.entries.forEach { metric ->
                 DropdownMenuItem(
                     text = { Text(metric.label) },
                     onClick = {
@@ -317,6 +327,52 @@ fun MetricSelector(
     }
 }
 
+@Composable
+fun ExerciseSelector(
+    uiState: FullHistoryUIState,
+    onExerciseSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+            ) {
+                Text(
+                    uiState.selectedExerciseName ?: "Select exercise",
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Select exercise"
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            uiState.exerciseNames.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = {
+                        expanded = false
+                        onExerciseSelected(name)
+                    }
+                )
+            }
+        }
+    }
+}
 
 
 @Composable
@@ -334,8 +390,6 @@ fun LineGraph(
     labelColor: Color = Color.Black
 ) {
     if (lines.isEmpty() || lines.all { it.isEmpty() }) return
-
-//    var selectedIndex by remember { mutableStateOf(-1) }
 
     // Flatten all points to compute global X/Y scales
     val allPoints = lines.flatten().sortedBy { it.date }
@@ -360,31 +414,6 @@ fun LineGraph(
 
     Canvas(
         modifier = modifier
-//            .pointerInput(Unit) {
-//                awaitPointerEventScope {
-//                    while (true) {
-//                        val event = awaitPointerEvent()
-//                        val pos = event.changes.firstOrNull()?.position ?: continue
-//
-//                        val chartLeftPadding = 80f
-//                        val chartBottomPadding = 60f
-//                        val chartWidth = size.width - chartLeftPadding
-//
-//                        val xScale = if (maxX == 0f) 1f else chartWidth / maxX
-//
-//                        val x = pos.x - chartLeftPadding
-//                        if (x >= 0f) {
-//                            val dayOffset = x / xScale
-//
-//                            // Find nearest point across ALL lines
-//                            val nearest = allXOffsets.indexOfFirst { abs(it - dayOffset) < 0.5f }
-//                            if (nearest != -1) selectedIndex = nearest
-//                        }
-//
-//                        event.changes.forEach { it.consume() }
-//                    }
-//                }
-//            }
     ) {
         val chartLeftPadding = 80f
         val chartBottomPadding = 60f
@@ -474,18 +503,5 @@ fun LineGraph(
                 style = Stroke(width = 4f)
             )
         }
-
-//        // --- Draw selected point indicator ---
-//        if (selectedIndex in allPoints.indices) {
-//            val selectedPoint = allPoints[selectedIndex]
-//            val x = chartLeftPadding + allXOffsets[selectedIndex] * xScale
-//            val y = chartHeight - (selectedPoint.value - minY) * yScale
-//
-//            drawCircle(
-//                color = Color.Red,
-//                radius = 10f,
-//                center = Offset(x, y)
-//            )
-//        }
     }
 }

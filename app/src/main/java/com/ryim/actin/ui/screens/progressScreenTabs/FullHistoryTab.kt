@@ -1,4 +1,4 @@
-package com.ryim.actin.ui.screens.ProgressScreenTabs
+package com.ryim.actin.ui.screens.progressScreenTabs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

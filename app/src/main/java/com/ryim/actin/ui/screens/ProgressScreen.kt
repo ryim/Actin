@@ -29,8 +29,8 @@ import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.SharedExAddViewModel
-import com.ryim.actin.ui.screens.ProgressScreenTabs.FullHistoryTab
-import com.ryim.actin.ui.screens.ProgressScreenTabs.GraphsTab
+import com.ryim.actin.ui.screens.progressScreenTabs.FullHistoryTab
+import com.ryim.actin.ui.screens.progressScreenTabs.GraphsTab
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

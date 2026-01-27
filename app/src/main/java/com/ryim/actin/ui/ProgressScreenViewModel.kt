@@ -50,6 +50,16 @@ class ProgressScreenViewModel @Inject constructor(
                 Instant.parse(entry.timestamp!!)
             }
 
+            // Extract unique exercise names (sorted alphabetically)
+            val uniqueNames = sorted
+                .map { it.name }
+                .distinct()
+                .sorted()
+
+            // Pick a default selected exercise
+            // Option A: first alphabetically
+            val defaultExercise = uniqueNames.firstOrNull()
+
             // Today’s date in local timezone
             val today: LocalDate =
                 Clock.System.now()
@@ -82,11 +92,17 @@ class ProgressScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     allExercises = sorted,
-                    weeklyCounts = weekly
+                    weeklyCounts = weekly,
+                    exerciseNames = uniqueNames,
+                    selectedExerciseName = defaultExercise
                 )
             }
+
+            // Now that state is ready, update the graph
+            updateGraphData(defaultExercise, uiState.value.selectedMetric)
         }
     }
+
 
     fun deleteExercise(entry: ExerciseEntry) {
         viewModelScope.launch {
@@ -95,9 +111,19 @@ class ProgressScreenViewModel @Inject constructor(
         }
     }
 
+    fun setMetric(metric: MetricType, exerciseName: String) {
+        _uiState.update { it.copy(selectedMetric = metric) }
+        updateGraphData(exerciseName, metric)
+    }
+
+    fun setSelectedExercise(name: String) {
+        _uiState.update { it.copy(selectedExerciseName = name) }
+        updateGraphData(name, uiState.value.selectedMetric)
+    }
+
     //  Stuff for the changeable graph
     fun updateGraphData(
-        exerciseName: String,
+        exerciseName: String?,
         metric: MetricType
     ) {
         val entries = uiState.value.allExercises
@@ -170,5 +196,8 @@ data class FullHistoryUIState(
     val allExercises: List<ExerciseEntry> = emptyList(),
     val weeklyCounts: List<WeeklyCount> = emptyList(),
     val graphData: List<DataPoint> = emptyList(),
-    val multiGraphData: List<List<DataPoint>> = emptyList()
+    val multiGraphData: List<List<DataPoint>> = emptyList(),
+    val selectedMetric: MetricType = MetricType.TOTAL_REPS,
+    val exerciseNames: List<String> = emptyList(),
+    val selectedExerciseName: String? = null,
 )
