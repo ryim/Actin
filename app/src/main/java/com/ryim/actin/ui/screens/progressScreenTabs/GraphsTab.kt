@@ -76,6 +76,7 @@ fun GraphsTab(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SectionHeader("Recent exercises")
+        Spacer(modifier = Modifier.height(24.dp))
 
         WeeklyBarChart(
             barColor = MaterialTheme.colorScheme.secondary,
@@ -451,8 +452,12 @@ fun LineGraph(
         }
 
         // --- X-axis ticks at regular intervals ---
-        val tickIntervalDays = 7  // weekly ticks
-        val xAxisTicks = (0..maxX.toInt() step tickIntervalDays).toList()
+        val numberOfTicks = 6
+        val interval = maxX / numberOfTicks
+
+        val xAxisTicks = (0..numberOfTicks).map { i ->
+            (i * interval).toInt()
+        }
 
         xAxisTicks.forEach { dayOffset ->
             val x = chartLeftPadding + dayOffset * xScale
