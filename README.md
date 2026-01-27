@@ -6,16 +6,9 @@
 -   Introduce UUIDs for exercises, so deleting them and editing them actually works properly
 -   Dropdowns for exercise field in Workouts
 -   Dropdowns for exercises in ExAddScreen
--   Add graphs of the best rating of exercises
-    -   volume                                      [x]
-    -   last set reps                               [ ]
-    -   all reps                                    [x]
-    -   Total reps                                  [x]
-    -   Drop-downs for existing exercises
-    -   Last 3 months, last 6 months, last year
--   Filter full history by personal bests or latest
 
 ### Medium priority
+-   Filter full history by personal bests or latest
 -   JSON export for Workouts
 -   Add a warning that importing data overwrites the existing data.
 
@@ -35,6 +28,13 @@
 -   There is no checking for integrity of the JSON file on import
 
 ##  Done
+-   Add graphs of the best rating of exercises
+    -   volume                                      [x]
+    -   last set reps                               [x]
+    -   all reps                                    [x]
+    -   Total reps                                  [x]
+    -   Drop-downs for existing exercises           [x]
+    -   Last 3 months, last 6 months, last year     [x]
 -   FIXED: The home screen loads sluggishly
 -   Change recent activity to the last 3 weeks, and group by workout
 -   Add editing and deletion to the Workouts list screen

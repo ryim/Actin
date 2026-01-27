@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import com.ryim.actin.ui.MetricType
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
+import com.ryim.actin.ui.TimePeriod
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
@@ -91,20 +92,9 @@ fun GraphsTab(
         SectionHeader("Detailed metrics")
         Spacer(modifier = Modifier.height(24.dp))
 
-        MetricSelector(
+        GraphSelectors(
             uiState = uiState,
-            onMetricSelected = { metric ->
-                uiState.selectedExerciseName?.let { exercise ->
-                    viewModel.setMetric(metric, exercise)
-                }
-            }
-        )
-
-        ExerciseSelector(
-            uiState = uiState,
-            onExerciseSelected = { name ->
-                viewModel.setSelectedExercise(name)
-            }
+            viewModel = viewModel
         )
 
         Spacer(Modifier.height(16.dp))
@@ -282,6 +272,88 @@ fun WeeklyBarChart(
 private fun Float.ceilToInt(): Int = ceil(this).toInt()
 
 @Composable
+fun GraphSelectors(
+    uiState: FullHistoryUIState,
+    viewModel: ProgressScreenViewModel
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        // ─────────────────────────────
+        // Row 1: Metric + Time Period
+        // ─────────────────────────────
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            // Metric
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Metric",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                MetricSelector(
+                    uiState = uiState,
+                    onMetricSelected = { metric ->
+                        uiState.selectedExerciseName?.let { exercise ->
+                            viewModel.setMetric(metric, exercise)
+                        }
+                    }
+                )
+            }
+
+            // Time Period
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Time Period",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                TimePeriodSelector(
+                    uiState = uiState,
+                    onPeriodSelected = { period ->
+                        viewModel.setTimePeriod(period)
+                    }
+                )
+            }
+        }
+
+        // ─────────────────────────────
+        // Row 2: Exercise Selector
+        // ─────────────────────────────
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "Exercise",
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            ExerciseSelector(
+                uiState = uiState,
+                onExerciseSelected = { name ->
+                    viewModel.setSelectedExercise(name)
+                }
+            )
+        }
+    }
+}
+
+
+@Composable
 fun MetricSelector(
     uiState: FullHistoryUIState,
     onMetricSelected: (MetricType) -> Unit
@@ -374,6 +446,54 @@ fun ExerciseSelector(
         }
     }
 }
+
+@Composable
+fun TimePeriodSelector(
+    uiState: FullHistoryUIState,
+    onPeriodSelected: (TimePeriod) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+            ) {
+                Text(
+                    uiState.selectedTimePeriod.label,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Select time period"
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            TimePeriod.entries.forEach { period ->
+                DropdownMenuItem(
+                    text = { Text(period.label) },
+                    onClick = {
+                        expanded = false
+                        onPeriodSelected(period)
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 
 @Composable

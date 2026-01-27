@@ -121,24 +121,51 @@ class ProgressScreenViewModel @Inject constructor(
         updateGraphData(name, uiState.value.selectedMetric)
     }
 
+    fun setTimePeriod(period: TimePeriod) {
+        _uiState.update { it.copy(selectedTimePeriod = period) }
+
+        val exercise = uiState.value.selectedExerciseName ?: return
+        val metric = uiState.value.selectedMetric
+
+        updateGraphData(exercise, metric)
+    }
+
     //  Stuff for the changeable graph
     fun updateGraphData(
         exerciseName: String?,
         metric: MetricType
     ) {
-        val entries = uiState.value.allExercises
+        if (exerciseName == null) return
+        val state = uiState.value
+
+        // 1. Determine cutoff date based on selected time period
+        val months = state.selectedTimePeriod.months
+        val cutoffDate = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+            .minus(DatePeriod(months = months))
+
+        // 2. Filter entries by exercise name AND time period
+        val entries = state.allExercises
             .filter { it.name == exerciseName }
+            .filter { entry ->
+                val date = entry.timestamp
+                    ?.let { Instant.parse(it).toLocalDateTime(TimeZone.currentSystemDefault()).date }
+                    ?: LocalDate(entry.year, entry.month, entry.day)
+
+                date >= cutoffDate
+            }
             .sortedBy { it.timestamp }
 
+        // 3. Build graph data based on metric type
         when (metric) {
 
             MetricType.ALL_REPS -> {
-                // Up to 6 lines, one per rep index
                 val series = List(6) { mutableListOf<DataPoint>() }
 
                 entries.forEach { entry ->
                     val date = entry.timestamp
-                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.UTC).date }
+                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.currentSystemDefault()).date }
                         ?: LocalDate(entry.year, entry.month, entry.day)
 
                     entry.reps.take(6).forEachIndexed { index, reps ->
@@ -150,19 +177,23 @@ class ProgressScreenViewModel @Inject constructor(
             }
 
             MetricType.TOTAL_REPS,
-            MetricType.TOTAL_VOLUME -> {
+            MetricType.TOTAL_VOLUME,
+            MetricType.LAST_SET_REPS -> {
+
                 val sorted = entries.map { entry ->
 
                     val date = entry.timestamp
-                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.UTC).date }
+                        ?.let { Instant.parse(it).toLocalDateTime(TimeZone.currentSystemDefault()).date }
                         ?: LocalDate(entry.year, entry.month, entry.day)
 
                     val totalReps = entry.reps.sum()
                     val totalVolume = entry.reps.zip(entry.weights) { r, w -> r * w }.sum()
+                    val lastSetReps = entry.reps.lastOrNull()?.toFloat() ?: 0f   // NEW
 
                     val yValue = when (metric) {
                         MetricType.TOTAL_REPS -> totalReps.toFloat()
                         MetricType.TOTAL_VOLUME -> totalVolume
+                        MetricType.LAST_SET_REPS -> lastSetReps
                         else -> 0f
                     }
 
@@ -179,7 +210,14 @@ class ProgressScreenViewModel @Inject constructor(
 enum class MetricType(val label: String) {
     TOTAL_REPS("Total reps"),
     TOTAL_VOLUME("Total volume"),
-    ALL_REPS("Reps per set")
+    ALL_REPS("Reps per set"),
+    LAST_SET_REPS("Last set reps")
+}
+
+enum class TimePeriod(val label: String, val months: Int) {
+    THREE_MONTHS("3 months", 3),
+    SIX_MONTHS("6 months", 6),
+    ONE_YEAR("1 year", 12)
 }
 
 data class DataPoint(
@@ -197,6 +235,7 @@ data class FullHistoryUIState(
     val weeklyCounts: List<WeeklyCount> = emptyList(),
     val graphData: List<DataPoint> = emptyList(),
     val multiGraphData: List<List<DataPoint>> = emptyList(),
+    val selectedTimePeriod: TimePeriod = TimePeriod.THREE_MONTHS,
     val selectedMetric: MetricType = MetricType.TOTAL_REPS,
     val exerciseNames: List<String> = emptyList(),
     val selectedExerciseName: String? = null,
