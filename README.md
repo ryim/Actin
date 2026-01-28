@@ -3,7 +3,6 @@
 ##  To Do list
 
 ### High priority
--   Introduce UUIDs for exercises, so deleting them and editing them actually works properly
 -   Dropdowns for exercise field in Workouts
 -   Dropdowns for exercises in ExAddScreen
 
@@ -24,10 +23,11 @@
     -   Hook it into the notifications permission
 
 ##  Bugs
--   Editing the name of an exercise doesn't delete the old exercise before adding the new one, maybe because the old name isn't passed to the delete function properly
 -   There is no checking for integrity of the JSON file on import
 
 ##  Done
+-   FIXED: Editing the name of an exercise doesn't delete the old exercise before adding the new one, maybe because the old name isn't passed to the delete function properly
+-   Introduce UUIDs for exercises, so deleting them and editing them actually works properly
 -   Add graphs of the best rating of exercises
     -   volume                                      [x]
     -   last set reps                               [x]

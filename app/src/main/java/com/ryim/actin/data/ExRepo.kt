@@ -42,18 +42,18 @@ class ExerciseRepositoryImpl(
 
         val updated = if (editMode) {
             val mutable = existing.toMutableList()
-            val index = mutable.indexOfFirst {
-                it.name == finalEntry.name &&
-                        it.day == finalEntry.day &&
-                        it.month == finalEntry.month &&
-                        it.year == finalEntry.year
-            }
+
+            // NEW: replace by id
+            val index = mutable.indexOfFirst { it.id == finalEntry.id }
 
             if (index != -1) {
-                mutable.removeAt(index)
+                mutable[index] = finalEntry
+            } else {
+                // If somehow the entry wasn't found, append it
+                mutable.add(finalEntry)
             }
 
-            mutable + finalEntry
+            mutable
         } else {
             existing + finalEntry
         }
@@ -68,12 +68,7 @@ class ExerciseRepositoryImpl(
         )
     }
 
-    override suspend fun deleteExercise(
-        name: String,
-        day: Int,
-        month: Int,
-        year: Int
-    ) {
+    override suspend fun deleteExercise(id: String) {
         val file = File(context.filesDir, fileName)
 
         val existing = if (file.exists()) {
@@ -86,22 +81,13 @@ class ExerciseRepositoryImpl(
             } else emptyList()
         } else emptyList()
 
-        // Remove ONE matching entry
+        // Remove ONE matching entry by id
         val updated = existing.toMutableList().apply {
-            val index = indexOfFirst {
-                it.name == name &&
-                        it.day == day &&
-                        it.month == month &&
-                        it.year == year
-            }
+            val index = indexOfFirst { it.id == id }
             if (index != -1) removeAt(index)
         }
 
-        // Write back
-        val prettyJson = Json {
-            prettyPrint = true
-//            prettyPrintIndent = "  "
-        }
+        val prettyJson = Json { prettyPrint = true }
 
         file.writeText(
             prettyJson.encodeToString(

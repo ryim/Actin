@@ -38,6 +38,7 @@ import com.ryim.actin.domain.formatTimestampPretty
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.SharedExAddViewModel
+import java.util.UUID
 
 @Composable
 fun FullHistoryTab(
@@ -243,7 +244,8 @@ fun FullHistoryRow(
                                 useKg = entry.useKg,
                                 editMode = false,   // ADD mode
                                 timestamp = entry.timestamp,
-                                workout = null
+                                workout = null,
+                                id = UUID.randomUUID().toString()
                             )
                         )
 
@@ -266,7 +268,8 @@ fun FullHistoryRow(
                                 useKg = entry.useKg,
                                 editMode = true,    // EDIT mode
                                 timestamp = entry.timestamp,
-                                workout = null
+                                workout = null,
+                                id = entry.id
                             )
                         )
 

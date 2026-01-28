@@ -39,6 +39,7 @@ import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
 import com.ryim.actin.ui.WorkoutRunScreenViewModel
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,7 +137,8 @@ fun handleExerciseEdit(
             useKg = latest.useKg,
             editMode = false,
             timestamp = latest.timestamp,
-            workout = workoutName
+            workout = workoutName,
+            id = UUID.randomUUID().toString()
         )
     } else {
         ExAddPrefill(
@@ -147,7 +149,8 @@ fun handleExerciseEdit(
             useKg = true,
             editMode = false,
             timestamp = null,
-            workout = workoutName
+            workout = workoutName,
+            id = UUID.randomUUID().toString()
         )
     }
 

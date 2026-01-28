@@ -63,6 +63,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.until
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -217,7 +218,8 @@ fun HomeScreen(
                             useKg = true,
                             editMode = false,
                             timestamp = null,
-                            workout = null
+                            workout = null,
+                            id = UUID.randomUUID().toString()
                         )
                     )
                     onNavigateToExAdd()
@@ -431,7 +433,8 @@ fun ExerciseHistoryRow(
                         useKg = entry.useKg,
                         editMode = false,          // 👈 ADD MODE
                         timestamp = entry.timestamp,
-                        workout = null
+                        workout = null,
+                        id = UUID.randomUUID().toString()
                     )
                 )
                 onNavigateToExAdd()
@@ -470,7 +473,8 @@ fun ExerciseHistoryRow(
                                 useKg = entry.useKg,
                                 editMode = true,
                                 timestamp = entry.timestamp,
-                                workout = null
+                                workout = null,
+                                id = entry.id
                             )
                         )
 

@@ -73,7 +73,8 @@ fun ExAddEditScreen(
                 oldUseKg = it.useKg,
                 editMode = it.editMode,
                 oldTimestamp = it.timestamp,
-                workout = it.workout
+                workout = it.workout,
+                id = it.id
             )
         }
     }

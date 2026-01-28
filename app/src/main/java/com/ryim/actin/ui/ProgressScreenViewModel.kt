@@ -103,10 +103,9 @@ class ProgressScreenViewModel @Inject constructor(
         }
     }
 
-
     fun deleteExercise(entry: ExerciseEntry) {
         viewModelScope.launch {
-            repo.deleteExercise(entry.name, entry.day, entry.month, entry.year)
+            repo.deleteExercise(entry.id)
             loadHistory()   // refresh both lists
         }
     }

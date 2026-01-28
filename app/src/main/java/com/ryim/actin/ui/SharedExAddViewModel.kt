@@ -29,5 +29,6 @@ data class ExAddPrefill(
     val useKg: Boolean,
     val editMode: Boolean,
     val timestamp: String?,
-    val workout: String?
+    val workout: String?,
+    val id: String
 )

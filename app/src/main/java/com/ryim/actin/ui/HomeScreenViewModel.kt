@@ -72,7 +72,6 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-
     private fun loadHistory(entries: List<DatedEntry>) {
         val recent = entries
             .filter { it.ageInDays in 0..14 }
@@ -82,10 +81,9 @@ class HomeScreenViewModel @Inject constructor(
         _uiState.update { it.copy(latestExercises = recent) }
     }
 
-
     fun deleteExercise(entry: ExerciseEntry) {
         viewModelScope.launch {
-            repo.deleteExercise(entry.name, entry.day, entry.month, entry.year)
+            repo.deleteExercise(entry.id)
             repo.loadExercises()   // ← now safe, because we're inside a coroutine
         }
     }

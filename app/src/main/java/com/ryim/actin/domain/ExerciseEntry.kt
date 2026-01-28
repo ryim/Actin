@@ -10,11 +10,12 @@ import kotlin.time.ExperimentalTime
 import kotlinx.datetime.Instant
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-
+import java.util.UUID
 
 
 @Serializable
 data class ExerciseEntry(
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
     val sets: Int,
     val reps: List<Int>,

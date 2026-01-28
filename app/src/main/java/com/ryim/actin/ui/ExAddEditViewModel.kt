@@ -18,6 +18,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.toInstant
+import java.util.UUID
 import kotlin.time.ExperimentalTime
 
 //  Function for saving the data on confirmation, hooking it into the domain layer
@@ -53,7 +54,8 @@ class ExAddEditViewModel @Inject constructor(
             minute = now.minute.toString(),
             useKg = true,
             editMode = false,
-            workout = ""
+            workout = "",
+            id = UUID.randomUUID().toString(),
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -68,7 +70,8 @@ class ExAddEditViewModel @Inject constructor(
         oldUseKg: Boolean,
         editMode: Boolean,
         oldTimestamp: String?,
-        workout: String?
+        workout: String?,
+        id: String
     ) {
         _uiState.update {
             it.copy(
@@ -78,7 +81,8 @@ class ExAddEditViewModel @Inject constructor(
                 weights = oldWeights,
                 useKg = oldUseKg,
                 editMode = editMode,
-                workout = workout
+                workout = workout,
+                id = id
             )
         }
 
@@ -209,7 +213,8 @@ class ExAddEditViewModel @Inject constructor(
             month = state.month.toInt(),
             year = state.year.toInt(),
             timestamp = timestamp,
-            workout = state.workout
+            workout = state.workout,
+            id = state.id
         )
 
         viewModelScope.launch {
@@ -226,6 +231,7 @@ data class ExAddUiState(
     val useKg: Boolean = true,
     val editMode: Boolean = false,
     val workout: String? = null,
+    val id: String,
 
     // Existing date fields
     val day: String = "",

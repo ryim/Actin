@@ -8,10 +8,7 @@ interface ExerciseRepository {
     )
 
     suspend fun deleteExercise(
-        name: String,
-        day: Int,
-        month: Int,
-        year: Int
+        id: String
     )
     suspend fun loadExercises(): List<ExerciseEntry>
 
