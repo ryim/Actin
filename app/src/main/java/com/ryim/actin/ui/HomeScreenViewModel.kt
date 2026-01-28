@@ -27,13 +27,21 @@ class HomeScreenViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        loadHistory()
-        loadUngroupedHistForStats()
+        viewModelScope.launch {
+            val entries = loadEntriesWithAges()   // load once
+
+            loadHistory(entries)
+            loadUngroupedHistForStats(entries)
+        }
     }
 
     fun refresh() {
-        loadHistory()
-        loadUngroupedHistForStats()
+        viewModelScope.launch {
+            val entries = loadEntriesWithAges()   // load once
+
+            loadHistory(entries)
+            loadUngroupedHistForStats(entries)
+        }
     }
 
     private suspend fun loadEntriesWithAges(): List<DatedEntry> {
@@ -50,36 +58,30 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun loadUngroupedHistForStats() {
-        viewModelScope.launch {
-            val entries = loadEntriesWithAges()
+    private fun loadUngroupedHistForStats(entries: List<DatedEntry>) {
+        val thisWeek = entries.filter { it.ageInDays in 0..6 }
+        val lastWeek = entries.filter { it.ageInDays in 7..13 }
 
-            val thisWeek = entries.filter { it.ageInDays in 0..6 }
-            val lastWeek = entries.filter { it.ageInDays in 7..13 }
-
-            _uiState.update {
-                it.copy(
-                    lastWeekExercises = lastWeek.map { it.entry },
-                    thisWeekExercises = thisWeek.map { it.entry },
-                    thisWeekWorkoutCount = countWorkouts(thisWeek),
-                    lastWeekWorkoutCount = countWorkouts(lastWeek)
-                )
-            }
+        _uiState.update {
+            it.copy(
+                lastWeekExercises = lastWeek.map { it.entry },
+                thisWeekExercises = thisWeek.map { it.entry },
+                thisWeekWorkoutCount = countWorkouts(thisWeek),
+                lastWeekWorkoutCount = countWorkouts(lastWeek)
+            )
         }
     }
 
-    private fun loadHistory() {
-        viewModelScope.launch {
-            val entries = loadEntriesWithAges()
 
-            val recent = entries
-                .filter { it.ageInDays in 0..14 }
-                .sortedByDescending { it.instant }
-                .map { it.entry }
+    private fun loadHistory(entries: List<DatedEntry>) {
+        val recent = entries
+            .filter { it.ageInDays in 0..14 }
+            .sortedByDescending { it.instant }
+            .map { it.entry }
 
-            _uiState.update { it.copy(latestExercises = recent) }
-        }
+        _uiState.update { it.copy(latestExercises = recent) }
     }
+
 
     fun deleteExercise(entry: ExerciseEntry) {
         viewModelScope.launch {
