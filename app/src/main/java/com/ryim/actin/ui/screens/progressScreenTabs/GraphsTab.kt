@@ -90,14 +90,15 @@ fun GraphsTab(
         )
 
         SectionHeader("Performance by exercise")
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
 
         GraphSelectors(
             uiState = uiState,
             viewModel = viewModel
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         LineGraph(
             lines = uiState.multiGraphData,
@@ -280,7 +281,7 @@ fun GraphSelectors(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
         // ─────────────────────────────
@@ -294,7 +295,7 @@ fun GraphSelectors(
             // Metric
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
                     text = "Metric",
@@ -314,7 +315,7 @@ fun GraphSelectors(
             // Time Period
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
                     text = "Time Period",
@@ -335,7 +336,7 @@ fun GraphSelectors(
         // ─────────────────────────────
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
                 text = "Exercise",
@@ -508,7 +509,8 @@ fun LineGraph(
         Color.Yellow,
         Color.Blue
     ),
-    labelColor: Color = Color.Black
+    labelColor: Color = Color.Black,
+    textSize: Float = 32f
 ) {
     if (lines.isEmpty() || lines.all { it.isEmpty() }) return
 
@@ -525,13 +527,15 @@ fun LineGraph(
     val maxY = allPoints.maxOf { it.value }.coerceAtLeast(minY + 1f)
 
     // Text paint for labels
-    val textPaint = remember {
-        android.graphics.Paint().apply {
-            color = labelColor.toArgb()
-            textSize = 28f
+    val textPaint = remember(labelColor, textSize) {
+        Paint().asFrameworkPaint().apply {
             isAntiAlias = true
+            color = labelColor.toArgb()
+            textAlign = android.graphics.Paint.Align.CENTER
+            this.textSize = textSize
         }
     }
+
 
     Canvas(
         modifier = modifier
