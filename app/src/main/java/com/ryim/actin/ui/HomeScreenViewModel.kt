@@ -32,6 +32,7 @@ class HomeScreenViewModel @Inject constructor(
 
             loadHistory(entries)
             loadUngroupedHistForStats(entries)
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
 
@@ -112,6 +113,7 @@ class HomeScreenViewModel @Inject constructor(
 }
 
 data class MainUiState(
+    val isLoading: Boolean = true,
     val latestExercises: List<ExerciseEntry> = emptyList(),
     val lastWeekExercises: List<ExerciseEntry> = emptyList(),
     val thisWeekExercises: List<ExerciseEntry> = emptyList(),
