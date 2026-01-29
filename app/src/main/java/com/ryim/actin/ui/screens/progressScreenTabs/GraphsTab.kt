@@ -52,6 +52,7 @@ import com.ryim.actin.ui.MetricType
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.TimePeriod
+import com.ryim.actin.ui.theme.ChartColours
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
@@ -103,12 +104,12 @@ fun GraphsTab(
         LineGraph(
             lines = uiState.multiGraphData,
             colors = listOf(
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.tertiary,
-                MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.error,
-                MaterialTheme.colorScheme.outline,
-                MaterialTheme.colorScheme.inversePrimary
+                ChartColours.all[0],
+                ChartColours.all[1],
+                ChartColours.all[2],
+                ChartColours.all[3],
+                ChartColours.all[4],
+                ChartColours.all[5],
             ),
             labelColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -624,6 +625,13 @@ fun LineGraph(
 
                 if (i == 0) path.moveTo(x, y)
                 else path.lineTo(x, y)
+
+                //  Draw a circle at each datapoint
+                drawCircle(
+                    color = colors[lineIndex % colors.size],
+                    radius = 6f,
+                    center = Offset(x, y)
+                )
             }
 
             drawPath(
