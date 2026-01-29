@@ -556,25 +556,6 @@ fun LineGraph(
         val yAxisMin = ((minY + rawStep - 1) / rawStep).toInt() * rawStep
         val yAxisMax = ((maxY + rawStep - 1) / rawStep).toInt() * rawStep
 
-        // --- Draw Y-axis grid lines + labels ---
-        for (value in yAxisMin..yAxisMax step rawStep) {
-            val y = chartHeight - (value - minY) * yScale
-
-            drawLine(
-                color = Color.LightGray.copy(alpha = 0.4f),
-                start = Offset(chartLeftPadding, y),
-                end = Offset(size.width, y),
-                strokeWidth = 2f
-            )
-
-            drawContext.canvas.nativeCanvas.drawText(
-                value.toString(),
-                chartLeftPadding - 30f,
-                y + 10f,
-                textPaint
-            )
-        }
-
         // --- X-axis ticks at regular intervals ---
         val numberOfTicks = 6
         val interval = maxX / numberOfTicks
@@ -607,6 +588,25 @@ fun LineGraph(
                 textPaint
             )
             drawContext.canvas.nativeCanvas.restore()
+        }
+
+        // --- Draw Y-axis grid lines + labels ---
+        for (value in yAxisMin..yAxisMax step rawStep) {
+            val y = chartHeight - (value - minY) * yScale
+
+            drawLine(
+                color = Color.LightGray.copy(alpha = 0.4f),
+                start = Offset(chartLeftPadding, y),
+                end = Offset(size.width, y),
+                strokeWidth = 2f
+            )
+
+            drawContext.canvas.nativeCanvas.drawText(
+                value.toString(),
+                chartLeftPadding - 30f,
+                y + 10f,
+                textPaint
+            )
         }
 
         // --- Draw each line series ---
