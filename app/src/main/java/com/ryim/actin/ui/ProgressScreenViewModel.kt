@@ -214,6 +214,7 @@ enum class MetricType(val label: String) {
 }
 
 enum class TimePeriod(val label: String, val months: Int) {
+    ONE_MONTH("1 month", 1),
     THREE_MONTHS("3 months", 3),
     SIX_MONTHS("6 months", 6),
     ONE_YEAR("1 year", 12)
@@ -234,7 +235,7 @@ data class FullHistoryUIState(
     val weeklyCounts: List<WeeklyCount> = emptyList(),
     val graphData: List<DataPoint> = emptyList(),
     val multiGraphData: List<List<DataPoint>> = emptyList(),
-    val selectedTimePeriod: TimePeriod = TimePeriod.THREE_MONTHS,
+    val selectedTimePeriod: TimePeriod = TimePeriod.ONE_MONTH,
     val selectedMetric: MetricType = MetricType.TOTAL_REPS,
     val exerciseNames: List<String> = emptyList(),
     val selectedExerciseName: String? = null,
