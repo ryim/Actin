@@ -235,7 +235,7 @@ data class FullHistoryUIState(
     val weeklyCounts: List<WeeklyCount> = emptyList(),
     val graphData: List<DataPoint> = emptyList(),
     val multiGraphData: List<List<DataPoint>> = emptyList(),
-    val selectedTimePeriod: TimePeriod = TimePeriod.ONE_MONTH,
+    val selectedTimePeriod: TimePeriod = TimePeriod.THREE_MONTHS,
     val selectedMetric: MetricType = MetricType.TOTAL_REPS,
     val exerciseNames: List<String> = emptyList(),
     val selectedExerciseName: String? = null,

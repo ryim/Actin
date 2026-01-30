@@ -59,6 +59,7 @@ import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.SharedExAddViewModel
+import com.ryim.actin.ui.theme.SplashBack
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -103,12 +104,12 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(SplashBack),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceContainer
+                trackColor = SplashBack
             )
         }
         return
@@ -288,7 +289,7 @@ fun HomeScreen(
                     )
                 }
 
-                // Your existing row
+                // Display an exercise entry
                 ExerciseHistoryRow(
                     entry = entry,
                     sharedExAddViewModel = sharedExAddViewModel,
@@ -296,14 +297,14 @@ fun HomeScreen(
                     onDeleteRequest = { entryToDelete = it }
                 )
 
-                // Divider logic (unchanged)
+                // Divider logic for separation between workouts
                 if (index < entries.lastIndex) {
                     val currentTime = Instant.parse(entry.timestamp!!)
                     val nextTime = Instant.parse(entries[index + 1].timestamp!!)
 
                     val hoursBetween = nextTime.until(currentTime, DateTimeUnit.HOUR, TimeZone.UTC)
 
-                    if (hoursBetween > 2) {
+                    if (hoursBetween > 0) {
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             thickness = 1.dp,

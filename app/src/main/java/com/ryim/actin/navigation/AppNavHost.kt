@@ -20,6 +20,7 @@ import com.ryim.actin.ui.screens.ExAddEditScreen
 import com.ryim.actin.ui.screens.ProgressScreen
 import com.ryim.actin.ui.screens.WorkoutListScreen
 import com.ryim.actin.ui.screens.SettingScreen
+import com.ryim.actin.ui.screens.SplashScreen
 import com.ryim.actin.ui.screens.WorkoutRunScreen
 import com.ryim.actin.ui.theme.loadDarkMode
 import com.ryim.actin.ui.theme.MyTheme
@@ -42,9 +43,20 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
     NavHost(
         navController,
-        startDestination = "home",
+        startDestination = "splash",
         route = "root"
     ) {
+        // --- Splash Screen ---
+        composable("splash") {
+            SplashScreen(
+                onTimeout = {
+                    navController.navigate("home") {
+                        popUpTo("splash") { inclusive = true } // remove splash from back stack
+                    }
+                }
+            )
+        }
+
         composable("home") { backStackEntry ->
 
             // Get the parent NavGraph entry (the root graph)

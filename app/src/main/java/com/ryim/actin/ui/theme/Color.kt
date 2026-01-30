@@ -2,7 +2,7 @@ package com.ryim.actin.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-
+val SplashBack = Color(0xFF11233c)
 val PrimaryColDark = Color(0xFF2a4b85)
 //val SecondaryColDark = Color(0xFFA7ABB1)
 val SecondaryColDark = Color(0xffffbc13)

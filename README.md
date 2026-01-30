@@ -23,14 +23,15 @@
 ### Low priority
 -   [Feature] [For release] Add an about screen with version number
 -   [Feature] Add a link to the Github repo in the About, when both are available
--   [Feature] Add privacy policy to the About screen
+-   [Feature] [For release] Add privacy policy to the About screen
 -   [Feature] Add a timer
     -   Add timer settings on the settings screen               [ ]
     -   Add timer button to the Exercise addition screen        [ ]
     -   Hook it into the notifications permission               [ ]
 
 ##  Bugs
--   There is no checking for integrity of the JSON file on import
+-   [Fix] There is no checking for integrity of the JSON file on import
+-   [Fix] Time display on the exercise add screen - harmonise with the rest of the app
 
 ##  Done
 -   [Fix] Editing the name of an exercise doesn't delete the old exercise before adding the new one, maybe because the old name isn't passed to the delete function properly
