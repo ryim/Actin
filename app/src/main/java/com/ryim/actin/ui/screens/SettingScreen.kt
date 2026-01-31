@@ -60,7 +60,7 @@ fun SettingScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    //  Launchers for JSON export and export
+    //  Launchers for Exercise data JSON export and export
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -73,7 +73,7 @@ fun SettingScreen(
         if (uri != null) viewModel.importFromUri(uri)
     }
 
-    //  Launcher for TSV export
+    //  Launcher for Exercise data TSV export
     var pendingTsv by remember { mutableStateOf<String?>(null) }
 
     val tsvExportLauncher = rememberLauncherForActivityResult(
@@ -84,6 +84,19 @@ fun SettingScreen(
                 stream.write(pendingTsv!!.toByteArray())
             }
         }
+    }
+
+    //  Launchers for workout data JSON export and export
+    val workoutExportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) viewModel.exportWorkoutToUri(uri)
+    }
+
+    val workoutImportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) viewModel.importWorkoutFromUri(uri)
     }
 
     //  The main part of the composable
@@ -228,17 +241,17 @@ fun SettingScreen(
             SectionHeader("Workout data management")
 
             CenteredActionButton(
-                text = "Import JSON (To do)",
+                text = "Import JSON",
                 onClick = {
-//                    importLauncher.launch(arrayOf("application/json"))
+                    workoutImportLauncher.launch(arrayOf("application/json"))
                 },
                 modifier = Modifier
             )
 
             CenteredActionButton(
-                text = "Export JSON (To do)",
+                text = "Export JSON",
                 onClick = {
-//                    exportLauncher.launch("exercises.json")
+                    workoutExportLauncher.launch("workouts.json")
                 },
                 modifier = Modifier
             )

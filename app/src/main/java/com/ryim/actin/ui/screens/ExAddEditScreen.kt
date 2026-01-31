@@ -29,13 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -43,7 +40,6 @@ import com.ryim.actin.ui.ExAddEditViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

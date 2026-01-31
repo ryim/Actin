@@ -10,4 +10,8 @@ interface WorkoutRepository {
     suspend fun loadWorkouts(): List<Workout>
 
     suspend fun deleteWorkout(id: String)
+
+    suspend fun exportJson(): String
+
+    suspend fun importJson(json: String)
 }

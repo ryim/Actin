@@ -62,7 +62,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.ui.unit)
     implementation(libs.androidx.compose.remote.creation.compose)
-    implementation(libs.androidx.compose.ui.test)
+//    implementation(libs.androidx.compose.ui.focus)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

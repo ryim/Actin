@@ -3,10 +3,7 @@ package com.ryim.actin.data.workouts
 import android.content.Context
 import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.domain.workouts.WorkoutRepository
-import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -14,7 +11,7 @@ class WorkoutRepositoryImpl(
     private val context: Context
 ) : WorkoutRepository {
 
-    private val file = File(context.filesDir, "workouts.json")
+    private val fileName = File(context.filesDir, "workouts.json")
 
     private val prettyJson = Json {
         prettyPrint = true
@@ -23,8 +20,8 @@ class WorkoutRepositoryImpl(
     override suspend fun saveOrReplaceWorkout(workout: Workout, editMode: Boolean) {
 
         // Load existing workouts (DTO list)
-        val existing = if (file.exists()) {
-            val text = file.readText()
+        val existing = if (fileName.exists()) {
+            val text = fileName.readText()
             if (text.isNotBlank()) {
                 Json.decodeFromString(
                     ListSerializer(WorkoutDto.serializer()),
@@ -49,7 +46,7 @@ class WorkoutRepositoryImpl(
             existing + finalDto
         }
 
-        file.writeText(
+        fileName.writeText(
             prettyJson.encodeToString(
                 ListSerializer(WorkoutDto.serializer()),
                 updated
@@ -57,19 +54,18 @@ class WorkoutRepositoryImpl(
         )
     }
 
-
     override suspend fun loadWorkouts(): List<Workout> {
-        if (!file.exists()) return emptyList()
+        if (!fileName.exists()) return emptyList()
 
-        val text = file.readText()
+        val text = fileName.readText()
         val list = Json.decodeFromString<List<WorkoutDto>>(text)
         return list.map { it.toDomain() }
     }
 
     override suspend fun deleteWorkout(id: String) {
 
-        val existing = if (file.exists()) {
-            val text = file.readText()
+        val existing = if (fileName.exists()) {
+            val text = fileName.readText()
             if (text.isNotBlank()) {
                 Json.decodeFromString(
                     ListSerializer(WorkoutDto.serializer()),
@@ -82,7 +78,7 @@ class WorkoutRepositoryImpl(
 
         val prettyJson = Json { prettyPrint = true }
 
-        file.writeText(
+        fileName.writeText(
             prettyJson.encodeToString(
                 ListSerializer(WorkoutDto.serializer()),
                 updated
@@ -90,4 +86,11 @@ class WorkoutRepositoryImpl(
         )
     }
 
+    override suspend fun exportJson(): String {
+        return if (fileName.exists()) fileName.readText() else "[]"
+    }
+
+    override suspend fun importJson(json: String) {
+        fileName.writeText(json)
+    }
 }
