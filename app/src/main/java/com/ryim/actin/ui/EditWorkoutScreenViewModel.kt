@@ -6,18 +6,36 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ryim.actin.domain.ExerciseEntry
+import com.ryim.actin.domain.ExerciseRepository
 import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.domain.workouts.WorkoutExercise
 import com.ryim.actin.domain.workouts.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
 
 @HiltViewModel
 class EditWorkoutViewModel @Inject constructor(
-    private val repo: WorkoutRepository
+    private val repo: WorkoutRepository,
+    private val exRepo: ExerciseRepository
 ) : ViewModel() {
+
+
+    init {
+        loadHistory()
+    }
 
     var workoutId: String? = null
     var editMode by mutableStateOf(false)
@@ -74,6 +92,28 @@ class EditWorkoutViewModel @Inject constructor(
                 workout,
                 editMode = editMode
             )
+        }
+    }
+
+    //  Make a uiState and store the unique exercise names in it
+    private val _uiState = MutableStateFlow(FullHistoryUIState())
+    val uiState = _uiState.asStateFlow()
+
+    private fun loadHistory() {
+        viewModelScope.launch {
+            val all = exRepo.loadExercises()
+
+            // Extract unique exercise names (sorted alphabetically)
+            val uniqueNames = all
+                .map { it.name }
+                .distinct()
+                .sorted()
+
+            _uiState.update {
+                it.copy(
+                    exerciseNames = uniqueNames,
+                )
+            }
         }
     }
 }

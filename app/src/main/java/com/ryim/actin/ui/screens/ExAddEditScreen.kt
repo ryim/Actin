@@ -172,6 +172,7 @@ fun ExAddEditScreen(
 
             val focusRequester = remember { FocusRequester() }
             var expanded by remember { mutableStateOf(false) }
+            var isFocused by remember { mutableStateOf(false) }
 
             Column {
                 TextField(
@@ -187,13 +188,17 @@ fun ExAddEditScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                            if (!state.isFocused) expanded = false
+                        },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences
                     )
                 )
 
-                if (expanded && suggestions.isNotEmpty()) {
+                if (expanded && isFocused && suggestions.isNotEmpty()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,13 +229,6 @@ fun ExAddEditScreen(
                     }
                 }
             }
-
-
-
-
-
-
-
 
 //            MinuteSecondStepper(
 //                minutes = minutes,

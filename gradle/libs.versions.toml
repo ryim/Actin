@@ -19,6 +19,7 @@ navigationCompose = "2.9.6"
 material3 = "1.4.0"
 uiUnit = "1.10.0"
 remoteCreationCompose = "1.0.0-alpha02"
+uiTest = "1.10.2"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -47,6 +48,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
 androidx-compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit", version.ref = "uiUnit" }
 androidx-compose-remote-creation-compose = { group = "androidx.compose.remote", name = "remote-creation-compose", version.ref = "remoteCreationCompose" }
+androidx-compose-ui-test = { group = "androidx.compose.ui", name = "ui-test", version.ref = "uiTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
