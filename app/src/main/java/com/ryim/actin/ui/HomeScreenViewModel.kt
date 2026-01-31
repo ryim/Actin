@@ -28,20 +28,34 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val entries = loadEntriesWithAges()   // load once
+            val entries = loadEntriesWithAges()
 
             loadHistory(entries)
             loadUngroupedHistForStats(entries)
-            _uiState.update { it.copy(isLoading = false) }
+
+            val uniqueNames = entries.map { it.entry.name }.distinct().sorted()
+
+            _uiState.update {
+                it.copy(
+                    uniqueExerciseNames = uniqueNames,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun refresh() {
         viewModelScope.launch {
-            val entries = loadEntriesWithAges()   // load once
+            val entries = loadEntriesWithAges()
 
             loadHistory(entries)
             loadUngroupedHistForStats(entries)
+
+            val uniqueNames = entries.map { it.entry.name }.distinct().sorted()
+
+            _uiState.update { it.copy(
+                uniqueExerciseNames = uniqueNames
+            ) }
         }
     }
 
@@ -117,6 +131,7 @@ data class MainUiState(
     val latestExercises: List<ExerciseEntry> = emptyList(),
     val lastWeekExercises: List<ExerciseEntry> = emptyList(),
     val thisWeekExercises: List<ExerciseEntry> = emptyList(),
+    val uniqueExerciseNames: List<String> = emptyList(),
 
     // New fields for workout counts
     val lastWeekWorkoutCount: Int = 0,

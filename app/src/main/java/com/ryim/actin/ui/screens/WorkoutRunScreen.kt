@@ -33,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ryim.actin.ui.ExAddPrefill
+import com.ryim.actin.ui.FullHistoryUIState
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
@@ -103,6 +104,7 @@ fun WorkoutRunScreen(
                     history = viewModel.uiState.collectAsState().value.allExercises,
                     onEditExercise = { exerciseName ->
                         handleExerciseEdit(
+                            uiState = viewModel.uiState.value,
                             exerciseName = exerciseName,
                             sharedWorkoutViewModel = sharedWorkoutViewModel,
                             sharedExAddViewModel = sharedExAddViewModel,
@@ -118,6 +120,7 @@ fun WorkoutRunScreen(
 }
 
 fun handleExerciseEdit(
+    uiState: FullHistoryUIState,
     exerciseName: String,
     sharedWorkoutViewModel: SharedWorkoutViewModel,
     sharedExAddViewModel: SharedExAddViewModel,
@@ -138,7 +141,8 @@ fun handleExerciseEdit(
             editMode = false,
             timestamp = latest.timestamp,
             workout = workoutName,
-            id = UUID.randomUUID().toString()
+            id = UUID.randomUUID().toString(),
+            listOfExercises = uiState.exerciseNames
         )
     } else {
         ExAddPrefill(
@@ -150,7 +154,8 @@ fun handleExerciseEdit(
             editMode = false,
             timestamp = null,
             workout = workoutName,
-            id = UUID.randomUUID().toString()
+            id = UUID.randomUUID().toString(),
+            listOfExercises = uiState.exerciseNames
         )
     }
 

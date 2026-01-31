@@ -22,6 +22,7 @@ class SharedExAddViewModel @Inject constructor() : ViewModel() {
 }
 
 data class ExAddPrefill(
+    val listOfExercises: List<String> = emptyList(),
     val name: String,
     val sets: Int,
     val reps: List<Int>,

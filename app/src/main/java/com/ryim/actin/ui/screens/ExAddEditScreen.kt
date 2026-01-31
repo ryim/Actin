@@ -2,9 +2,11 @@ package com.ryim.actin.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -27,7 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +43,7 @@ import com.ryim.actin.ui.ExAddEditViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -153,22 +162,75 @@ fun ExAddEditScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             val isNameError = uiState.name.isBlank()
+            val suggestions = remember(uiState.name, prefill) {
+                prefill?.listOfExercises
+                    ?.filter { it.contains(uiState.name, ignoreCase = true) }
+                    ?.sorted()
+                    ?.take(6)
+                    ?: emptyList()
+            }
 
-            TextField(
-                value = uiState.name,
-                onValueChange = { viewModel.onNameChanged(it) },
-                label = { Text("Exercise name") },
-                isError = isNameError,
-                supportingText = {
-                    if (isNameError) {
-                        Text("Name is required")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences
+            val focusRequester = remember { FocusRequester() }
+            var expanded by remember { mutableStateOf(false) }
+
+            Column {
+                TextField(
+                    value = uiState.name,
+                    onValueChange = {
+                        viewModel.onNameChanged(it)
+                        expanded = true
+                    },
+                    label = { Text("Exercise name") },
+                    isError = isNameError,
+                    supportingText = {
+                        if (isNameError) Text("Name is required")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences
+                    )
                 )
-            )
+
+                if (expanded && suggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp) // limit size
+                                .padding(8.dp)
+                        ) {
+                            items(suggestions) { suggestion ->
+                                Text(
+                                    text = suggestion,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.onNameChanged(suggestion)
+                                            expanded = false
+
+                                            // Keep focus on the text field
+                                            focusRequester.requestFocus()
+                                        }
+                                        .padding(12.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+
+
 
 //            MinuteSecondStepper(
 //                minutes = minutes,

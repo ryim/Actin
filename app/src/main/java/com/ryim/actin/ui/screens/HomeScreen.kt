@@ -55,6 +55,7 @@ import com.ryim.actin.domain.formattedDate
 import com.ryim.actin.domain.localDate
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.HomeScreenViewModel
+import com.ryim.actin.ui.MainUiState
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
@@ -238,7 +239,8 @@ fun HomeScreen(
                             editMode = false,
                             timestamp = null,
                             workout = null,
-                            id = UUID.randomUUID().toString()
+                            id = UUID.randomUUID().toString(),
+                            listOfExercises = uiState.uniqueExerciseNames,
                         )
                     )
                     onNavigateToExAdd()
@@ -291,6 +293,7 @@ fun HomeScreen(
 
                 // Display an exercise entry
                 ExerciseHistoryRow(
+                    uiState = uiState,
                     entry = entry,
                     sharedExAddViewModel = sharedExAddViewModel,
                     onNavigateToExAdd = onNavigateToExAdd,
@@ -337,6 +340,7 @@ fun HomeScreen(
 
 @Composable
 fun ExerciseHistoryRow(
+    uiState: MainUiState,
     entry: ExerciseEntry,
     sharedExAddViewModel: SharedExAddViewModel,
     onNavigateToExAdd: () -> Unit,
@@ -453,7 +457,8 @@ fun ExerciseHistoryRow(
                         editMode = false,          // 👈 ADD MODE
                         timestamp = entry.timestamp,
                         workout = null,
-                        id = UUID.randomUUID().toString()
+                        id = UUID.randomUUID().toString(),
+                        listOfExercises = uiState.uniqueExerciseNames,
                     )
                 )
                 onNavigateToExAdd()
@@ -493,7 +498,8 @@ fun ExerciseHistoryRow(
                                 editMode = true,
                                 timestamp = entry.timestamp,
                                 workout = null,
-                                id = entry.id
+                                id = entry.id,
+                                listOfExercises = uiState.uniqueExerciseNames,
                             )
                         )
 

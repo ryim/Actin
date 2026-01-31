@@ -47,9 +47,15 @@ class WorkoutRunScreenViewModel @Inject constructor(
                 LocalDate.of(entry.year, entry.month, entry.day)
             }
 
+            val uniqueNames = sorted
+                .map { it.name }
+                .distinct()
+                .sorted()
+
             _uiState.update {
                 it.copy(
                     allExercises = sorted,
+                    exerciseNames = uniqueNames
                 )
             }
         }

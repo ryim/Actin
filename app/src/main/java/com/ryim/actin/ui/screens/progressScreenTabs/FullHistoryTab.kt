@@ -64,7 +64,8 @@ fun FullHistoryTab(
                     entry = entry,
                     sharedExAddViewModel = sharedExAddViewModel,
                     onNavigateToExAdd = onNavigateToExAdd,
-                    onDeleteRequest = { entryToDelete = it }
+                    onDeleteRequest = { entryToDelete = it },
+                    uiState = uiState
                 )
 
                 HorizontalDivider(
@@ -95,6 +96,7 @@ fun FullHistoryTab(
 
 @Composable
 fun FullHistoryRow(
+    uiState: FullHistoryUIState,
     entry: ExerciseEntry,
     sharedExAddViewModel: SharedExAddViewModel,
     onNavigateToExAdd: () -> Unit,
@@ -245,7 +247,8 @@ fun FullHistoryRow(
                                 editMode = false,   // ADD mode
                                 timestamp = entry.timestamp,
                                 workout = null,
-                                id = UUID.randomUUID().toString()
+                                id = UUID.randomUUID().toString(),
+                                listOfExercises = uiState.exerciseNames
                             )
                         )
 
@@ -269,7 +272,8 @@ fun FullHistoryRow(
                                 editMode = true,    // EDIT mode
                                 timestamp = entry.timestamp,
                                 workout = null,
-                                id = entry.id
+                                id = entry.id,
+                                listOfExercises = uiState.exerciseNames
                             )
                         )
 

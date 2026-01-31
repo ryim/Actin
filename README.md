@@ -4,7 +4,6 @@
 
 ### High priority
 -   [Feature] Dropdowns for exercise field in WorkoutEditScreen
--   [Feature] Dropdowns for exercises in ExAddScreen
 
 ### Medium priority
 -   [For release] Add a proper changelog
@@ -34,6 +33,7 @@
 -   [Fix] Time display on the exercise add screen - harmonise with the rest of the app
 
 ##  Done
+-   [Feature] Dropdowns for exercises in ExAddScreen
 -   [Fix] Editing the name of an exercise doesn't delete the old exercise before adding the new one, maybe because the old name isn't passed to the delete function properly
 -   [Change] Introduce UUIDs for exercises, so deleting them and editing them actually works properly
 -   [Feature] Add graphs of the best rating of exercises
