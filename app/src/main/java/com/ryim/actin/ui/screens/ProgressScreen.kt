@@ -122,7 +122,8 @@ fun ProgressScreen(
                     uiState = uiState,
                     sharedExAddViewModel = sharedExAddViewModel,
                     onNavigateToExAdd = onNavigateToExAdd,
-                    onDeleteExercise = onDeleteExercise
+                    onDeleteExercise = onDeleteExercise,
+                    viewModel = viewModel
                 )
             }
         }

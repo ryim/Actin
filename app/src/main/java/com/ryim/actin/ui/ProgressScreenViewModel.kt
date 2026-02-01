@@ -94,7 +94,8 @@ class ProgressScreenViewModel @Inject constructor(
                     allExercises = sorted,
                     weeklyCounts = weekly,
                     exerciseNames = uniqueNames,
-                    selectedExerciseName = defaultExercise
+                    selectedExerciseName = defaultExercise,
+                    filteredExercises = applyFilter(sorted, it.fullHistFilterState)
                 )
             }
 
@@ -204,6 +205,60 @@ class ProgressScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun setFullHistFilter(filter: fullHistFilter) {
+        _uiState.update { state ->
+            state.copy(
+                fullHistFilterState = filter,
+                filteredExercises = applyFilter(state.allExercises, filter)
+            )
+        }
+    }
+}
+
+private fun ExerciseEntry.score(): Float {
+    return reps.zip(weights) { r, w -> r * w }
+        .sum()
+}
+
+private fun applyFilter(
+    all: List<ExerciseEntry>,
+    filter: fullHistFilter
+): List<ExerciseEntry> {
+
+    return when (filter) {
+
+        fullHistFilter.FULL_HIST ->
+            all
+
+        fullHistFilter.TOP_THREE -> {
+            all.groupBy { it.name }   // Map<String, List<ExerciseEntry>>
+                .flatMap { (_, entries) ->
+                    entries.sortedByDescending { it.score() }
+                        .take(3)      // top 3 for this exercise
+                }
+                .sortedByDescending { it.score() }  // optional: sort all results globally
+        }
+
+        fullHistFilter.MOST_RECENT -> {
+            all.groupBy { it.name }
+                .mapValues { (_, entries) ->
+                    entries.firstOrNull()   // already sorted, so this is the most recent
+                }
+                .values
+                .filterNotNull()
+        }
+
+        fullHistFilter.PB -> {
+            // Group by exercise name so PB is per exercise type
+            all.groupBy { it.name }
+                .values
+                .mapNotNull { entries ->
+                    entries.maxByOrNull { it.score() }
+                }
+                .sortedByDescending { it.score() }
+        }
+    }
 }
 
 enum class MetricType(val label: String) {
@@ -230,6 +285,13 @@ data class WeeklyCount(
     val count: Int
 )
 
+enum class fullHistFilter(val label: String) {
+    FULL_HIST("Full history"),
+    MOST_RECENT("Most recent by exercise"),
+    TOP_THREE("Top three by exercise name"),
+    PB("Personal bests")
+}
+
 data class FullHistoryUIState(
     val allExercises: List<ExerciseEntry> = emptyList(),
     val weeklyCounts: List<WeeklyCount> = emptyList(),
@@ -239,4 +301,6 @@ data class FullHistoryUIState(
     val selectedMetric: MetricType = MetricType.TOTAL_REPS,
     val exerciseNames: List<String> = emptyList(),
     val selectedExerciseName: String? = null,
+    val fullHistFilterState: fullHistFilter = fullHistFilter.FULL_HIST,
+    val filteredExercises: List<ExerciseEntry> = emptyList()
 )

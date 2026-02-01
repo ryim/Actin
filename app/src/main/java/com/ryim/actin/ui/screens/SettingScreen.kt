@@ -127,24 +127,26 @@ fun SettingScreen(
 //            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // --- Toggle 1 ---
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Enable notifications (to do)",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
+            SectionHeader("General")
 
-                var notificationsEnabled by remember { mutableStateOf(false) }
-
-                Switch(
-                    checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it }
-                )
-            }
+//            // --- Toggle 1 ---
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    text = "Enable notifications (to do)",
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    modifier = Modifier.weight(1f)
+//                )
+//
+//                var notificationsEnabled by remember { mutableStateOf(false) }
+//
+//                Switch(
+//                    checked = notificationsEnabled,
+//                    onCheckedChange = { notificationsEnabled = it }
+//                )
+//            }
 
             // Dark mode toggle
             Row(
@@ -169,45 +171,45 @@ fun SettingScreen(
                 )
             }
 
-            // --- Toggle 3 ---
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Dummy toggle",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
+//            // --- Toggle 3 ---
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    text = "Dummy toggle",
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    modifier = Modifier.weight(1f)
+//                )
+//
+//                var autoSyncEnabled by remember { mutableStateOf(false) }
+//
+//                Switch(
+//                    checked = autoSyncEnabled,
+//                    onCheckedChange = { autoSyncEnabled = it }
+//                )
+//            }
 
-                var autoSyncEnabled by remember { mutableStateOf(false) }
-
-                Switch(
-                    checked = autoSyncEnabled,
-                    onCheckedChange = { autoSyncEnabled = it }
-                )
-            }
-
-            SectionHeader("Timer settings")
-
-            // Global timer toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Use global timer",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-
-                var autoSyncEnabled by remember { mutableStateOf(false) }
-
-                Switch(
-                    checked = autoSyncEnabled,
-                    onCheckedChange = { autoSyncEnabled = it }
-                )
-            }
+//            SectionHeader("Timer settings")
+//
+//            // Global timer toggle
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    text = "Use global timer",
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    modifier = Modifier.weight(1f)
+//                )
+//
+//                var autoSyncEnabled by remember { mutableStateOf(false) }
+//
+//                Switch(
+//                    checked = autoSyncEnabled,
+//                    onCheckedChange = { autoSyncEnabled = it }
+//                )
+//            }
 
            SectionHeader("Exercise data management")
 

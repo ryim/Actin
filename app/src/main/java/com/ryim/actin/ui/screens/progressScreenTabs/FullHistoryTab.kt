@@ -3,6 +3,7 @@ package com.ryim.actin.ui.screens.progressScreenTabs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -21,8 +24,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.remote.creation.compose.layout.HorizontalArrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,11 +42,16 @@ import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.formatTimestampPretty
 import com.ryim.actin.ui.ExAddPrefill
 import com.ryim.actin.ui.FullHistoryUIState
+import com.ryim.actin.ui.MetricType
+import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
+import com.ryim.actin.ui.fullHistFilter
+import org.intellij.lang.annotations.JdkConstants
 import java.util.UUID
 
 @Composable
 fun FullHistoryTab(
+    viewModel: ProgressScreenViewModel,
     uiState: FullHistoryUIState,
     sharedExAddViewModel: SharedExAddViewModel,
     onNavigateToExAdd: () -> Unit,
@@ -58,8 +68,19 @@ fun FullHistoryTab(
 
         var entryToDelete by remember { mutableStateOf<ExerciseEntry?>(null) }
 
+        Text(
+            text = "Filter by",
+            style = MaterialTheme.typography.labelMedium
+        )
+
+        FilterSelector(
+            uiState = uiState,
+            onFilterSelected = viewModel::setFullHistFilter
+        )
+
         LazyColumn {
-            items(uiState.allExercises) { entry ->
+
+            items(uiState.filteredExercises) { entry ->
                 FullHistoryRow(
                     entry = entry,
                     sharedExAddViewModel = sharedExAddViewModel,
@@ -287,6 +308,53 @@ fun FullHistoryRow(
                     onClick = {
                         menuExpanded = false
                         onDeleteRequest(entry)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterSelector(
+    uiState: FullHistoryUIState,
+    onFilterSelected: (fullHistFilter) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+            ) {
+                Text(
+                    uiState.fullHistFilterState.label,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Select filter",
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            fullHistFilter.entries.forEach { filter ->
+                DropdownMenuItem(
+                    text = { Text(filter.label) },
+                    onClick = {
+                        expanded = false
+                        onFilterSelected(filter)
                     }
                 )
             }

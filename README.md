@@ -3,7 +3,6 @@
 ##  To Do list
 
 ### High priority
--   [Feature] Dropdowns for exercise field in WorkoutEditScreen
 
 ### Medium priority
 -   [For release] Add a proper changelog
@@ -15,8 +14,6 @@
 -   [For release] Write a How to Build guide for devs
 -   [For release] Write basic intro to the app, with screenshots
 -   [For release] Work out how to get it submitted to F-droid
--   [Feature] Filter full history by personal bests or latest
--   [Feature] JSON export for Workouts
 -   [Feature] Add a warning that importing data overwrites the existing data.
 
 ### Low priority
@@ -27,12 +24,17 @@
     -   Add timer settings on the settings screen               [ ]
     -   Add timer button to the Exercise addition screen        [ ]
     -   Hook it into the notifications permission               [ ]
+-   [Feature] Add fatigue index to the graphs tab
 
 ##  Bugs
 -   [Fix] There is no checking for integrity of the JSON file on import
 -   [Fix] Time display on the exercise add screen - harmonise with the rest of the app
 
 ##  Done
+-   [Feature] Filter full history by personal bests or latest
+-   [For release] Tidy up unused semi-complete features
+-   [Feature] Workout data import and export
+-   [Feature] Dropdowns for exercise field in WorkoutEditScreen
 -   [Feature] Dropdowns for exercises in ExAddScreen
 -   [Fix] Editing the name of an exercise doesn't delete the old exercise before adding the new one, maybe because the old name isn't passed to the delete function properly
 -   [Change] Introduce UUIDs for exercises, so deleting them and editing them actually works properly
