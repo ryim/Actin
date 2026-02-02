@@ -1,6 +1,7 @@
 package com.ryim.actin.ui.screens.progressScreenTabs
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -278,24 +280,25 @@ fun GraphSelectors(
     uiState: FullHistoryUIState,
     viewModel: ProgressScreenViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    val selectorScrollState = rememberScrollState()
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = 16.dp),
+//        verticalArrangement = Arrangement.spacedBy(8.dp)
+//    ) {
 
-        // ─────────────────────────────
-        // Row 1: Metric + Time Period
-        // ─────────────────────────────
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxWidth()
+                .horizontalScroll(selectorScrollState)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
             // Metric
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.wrapContentWidth(),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
@@ -315,7 +318,7 @@ fun GraphSelectors(
 
             // Time Period
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.wrapContentWidth(),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
@@ -330,28 +333,28 @@ fun GraphSelectors(
                     }
                 )
             }
+
+            // Exercise Selector
+            Column(
+                modifier = Modifier.wrapContentWidth(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "Exercise",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                ExerciseSelector(
+                    uiState = uiState,
+                    onExerciseSelected = { name ->
+                        viewModel.setSelectedExercise(name)
+                    }
+                )
+            }
         }
 
-        // ─────────────────────────────
-        // Row 2: Exercise Selector
-        // ─────────────────────────────
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = "Exercise",
-                style = MaterialTheme.typography.labelMedium
-            )
 
-            ExerciseSelector(
-                uiState = uiState,
-                onExerciseSelected = { name ->
-                    viewModel.setSelectedExercise(name)
-                }
-            )
-        }
-    }
+//    }
 }
 
 

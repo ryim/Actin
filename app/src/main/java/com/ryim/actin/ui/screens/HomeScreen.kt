@@ -1,6 +1,8 @@
 package com.ryim.actin.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -30,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -142,11 +147,8 @@ fun HomeScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Spacer(modifier = Modifier.height(32.dp))
 
             SectionHeader("Last 7 days")
-
-//            Spacer(modifier = Modifier.height(6.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -205,8 +207,6 @@ fun HomeScreen(
                         )
                     }
                 }
-
-//                Spacer(modifier = Modifier.width(8.dp))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -286,8 +286,8 @@ fun HomeScreen(
 
                     Text(
                         text = headerText,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                     )
                 }
 
@@ -349,145 +349,122 @@ fun ExerciseHistoryRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Left side: your reps/weights table
-        Column (
-            modifier = Modifier.weight(1f) // <-- THIS FIXES THE OVERFLOW
-        ){
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+        ) {
+
             Text(
                 entry.name,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            // How many items to show before truncating
-            val maxItems = 4
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Left side: your reps/weights table
+                Column(
+                    modifier = Modifier.weight(1f)
+                        .padding(vertical = 8.dp),
+                ) {
 
-            // ----- REPS ROW -----
-            Row(verticalAlignment = Alignment.CenterVertically) {
 
-                Text(
-                    "Reps",
-                    modifier = Modifier.width(40.dp),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                    // How many items to show before truncating
+                    val maxItems = 5
+                    val dataColWidth = 38.dp
 
-                val repsToShow = entry.reps.take(maxItems)
-                val repsOverflow = entry.reps.size > maxItems
+                    // ----- REPS ROW -----
+                    Row(verticalAlignment = Alignment.CenterVertically) {
 
-                repsToShow.forEach { rep ->
-                    Text(
-                        rep.toString(),
-                        modifier = Modifier.width(40.dp),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                        Text(
+                            "Reps",
+                            modifier = Modifier.width(40.dp),
+                            style = MaterialTheme.typography.bodySmall
+                        )
 
-                if (repsOverflow) {
-                    Text(
-                        "…",
-                        modifier = Modifier.width(40.dp),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
+                        val repsToShow = entry.reps.take(maxItems)
+                        val repsOverflow = entry.reps.size > maxItems
 
-            // ----- WEIGHTS ROW -----
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                        repsToShow.forEach { rep ->
+                            Text(
+                                rep.toString(),
+                                modifier = Modifier.width(dataColWidth),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
 
-                fun formatWeight(value: Float): String {
-                    return when {
-                        value == 0f -> "-"                                   // Show "-" for 0.0
-                        value % 1f == 0f -> value.toInt().toString()         // Show integer if ends with .0
-                        else -> String.format("%.1f", value)                 // Otherwise show 1 decimal place
+                        if (repsOverflow) {
+                            Text(
+                                "",
+                                modifier = Modifier.width(20.dp),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    // ----- WEIGHTS ROW -----
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        @SuppressLint("DefaultLocale")
+                        fun formatWeight(value: Float): String {
+                            return when {
+                                value == 0f -> "-"                                   // Show "-" for 0.0
+                                value % 1f == 0f -> value.toInt()
+                                    .toString()         // Show integer if ends with .0
+                                else -> String.format(
+                                    "%.1f",
+                                    value
+                                )                 // Otherwise show 1 decimal place
+                            }
+                        }
+
+                        var weightHeader = "lb"
+                        if (entry.useKg) {
+                            weightHeader = "kg"
+                        }
+
+                        Text(
+                            weightHeader,
+                            modifier = Modifier.width(40.dp),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        val weightsToShow = entry.weights.take(maxItems)
+                        val weightsOverflow = entry.weights.size > maxItems
+
+                        weightsToShow.forEach { weight ->
+                            Text(
+                                formatWeight(weight),
+                                modifier = Modifier.width(dataColWidth),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        if (weightsOverflow) {
+                            Text(
+                                "…",
+                                modifier = Modifier.width(20.dp),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
 
-                var weightHeader = "lb"
-                if (entry.useKg) {
-                    weightHeader = "kg"
-                }
-
-                Text(
-                    weightHeader,
-                    modifier = Modifier.width(40.dp),
-                    style = MaterialTheme.typography.bodySmall
-                )
-
-                val weightsToShow = entry.weights.take(maxItems)
-                val weightsOverflow = entry.weights.size > maxItems
-
-                weightsToShow.forEach { weight ->
-                    Text(
-                        formatWeight(weight),
-                        modifier = Modifier.width(40.dp),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-
-                if (weightsOverflow) {
-                    Text(
-                        "",
-                        modifier = Modifier.width(40.dp),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-
-        // Right side: the + button
-        FilledIconButton(
-            onClick = {
-                sharedExAddViewModel.setPrefill(
-                    ExAddPrefill(
-                        name = entry.name,
-                        sets = entry.sets,
-                        reps = entry.reps,
-                        weights = entry.weights.map { it.toString() },
-                        useKg = entry.useKg,
-                        editMode = false,          // 👈 ADD MODE
-                        timestamp = entry.timestamp,
-                        workout = null,
-                        id = UUID.randomUUID().toString(),
-                        listOfExercises = uiState.uniqueExerciseNames,
-                    )
-                )
-                onNavigateToExAdd()
-            },
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondary
-            )
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add set")
-        }
-
-        var menuExpanded by remember { mutableStateOf(false) }
-
-        Box {
-            IconButton(onClick = { menuExpanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Menu")
-            }
-
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-
-                // Edit
-                DropdownMenuItem(
-                    text = { Text("Edit") },
+                // Right side: the + button
+                IconButton(
                     onClick = {
-                        menuExpanded = false
-
                         sharedExAddViewModel.setPrefill(
                             ExAddPrefill(
                                 name = entry.name,
@@ -495,29 +472,82 @@ fun ExerciseHistoryRow(
                                 reps = entry.reps,
                                 weights = entry.weights.map { it.toString() },
                                 useKg = entry.useKg,
-                                editMode = true,
+                                editMode = false,
                                 timestamp = entry.timestamp,
                                 workout = null,
-                                id = entry.id,
+                                id = UUID.randomUUID().toString(),
                                 listOfExercises = uiState.uniqueExerciseNames,
                             )
                         )
-
                         onNavigateToExAdd()
-                    }
-                )
+                    },
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    )
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Add set",
+                        modifier = Modifier.size(28.dp),   // shrink the icon itself
+                        tint = MaterialTheme.colorScheme.secondary   // outline‑style color
+                    )
+                }
 
-                // Delete
-                DropdownMenuItem(
-                    text = { Text("Delete") },
-                    onClick = {
-                        menuExpanded = false
-                        onDeleteRequest(entry)
+
+                var menuExpanded by remember { mutableStateOf(false) }
+
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        modifier = Modifier.size(36.dp),   // shrink the button if you want
+
+                    ) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
                     }
-                )
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+
+                        // Edit
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {
+                                menuExpanded = false
+
+                                sharedExAddViewModel.setPrefill(
+                                    ExAddPrefill(
+                                        name = entry.name,
+                                        sets = entry.sets,
+                                        reps = entry.reps,
+                                        weights = entry.weights.map { it.toString() },
+                                        useKg = entry.useKg,
+                                        editMode = true,
+                                        timestamp = entry.timestamp,
+                                        workout = null,
+                                        id = entry.id,
+                                        listOfExercises = uiState.uniqueExerciseNames,
+                                    )
+                                )
+
+                                onNavigateToExAdd()
+                            }
+                        )
+
+                        // Delete
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                menuExpanded = false
+                                onDeleteRequest(entry)
+                            }
+                        )
+                    }
+                }
             }
         }
-
     }
 }
 
