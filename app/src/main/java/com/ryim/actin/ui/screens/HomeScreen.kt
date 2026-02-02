@@ -3,6 +3,8 @@ package com.ryim.actin.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -287,7 +291,7 @@ fun HomeScreen(
                     Text(
                         text = headerText,
                         style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
 
@@ -349,7 +353,7 @@ fun ExerciseHistoryRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -373,7 +377,7 @@ fun ExerciseHistoryRow(
                 // Left side: your reps/weights table
                 Column(
                     modifier = Modifier.weight(1f)
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 2.dp),
                 ) {
 
 
@@ -463,48 +467,99 @@ fun ExerciseHistoryRow(
                 }
 
                 // Right side: the + button
-                IconButton(
-                    onClick = {
-                        sharedExAddViewModel.setPrefill(
-                            ExAddPrefill(
-                                name = entry.name,
-                                sets = entry.sets,
-                                reps = entry.reps,
-                                weights = entry.weights.map { it.toString() },
-                                useKg = entry.useKg,
-                                editMode = false,
-                                timestamp = entry.timestamp,
-                                workout = null,
-                                id = UUID.randomUUID().toString(),
-                                listOfExercises = uiState.uniqueExerciseNames,
+//                IconButton(
+//                    onClick = {
+//                        sharedExAddViewModel.setPrefill(
+//                            ExAddPrefill(
+//                                name = entry.name,
+//                                sets = entry.sets,
+//                                reps = entry.reps,
+//                                weights = entry.weights.map { it.toString() },
+//                                useKg = entry.useKg,
+//                                editMode = false,
+//                                timestamp = entry.timestamp,
+//                                workout = null,
+//                                id = UUID.randomUUID().toString(),
+//                                listOfExercises = uiState.uniqueExerciseNames,
+//                            )
+//                        )
+//                        onNavigateToExAdd()
+//                    },
+//                    modifier = Modifier.size(36.dp),
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        containerColor = MaterialTheme.colorScheme.surface,
+//                    )
+//                ) {
+//                    Icon(
+//                        Icons.Default.Add,
+//                        contentDescription = "Add set",
+//                        modifier = Modifier.size(28.dp),   // shrink the icon itself
+//                        tint = MaterialTheme.colorScheme.secondary   // outline‑style color
+//                    )
+//                }
+
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)   // this now controls the border diameter
+                        .clip(CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            sharedExAddViewModel.setPrefill(
+                                ExAddPrefill(
+                                    name = entry.name,
+                                    sets = entry.sets,
+                                    reps = entry.reps,
+                                    weights = entry.weights.map { it.toString() },
+                                    useKg = entry.useKg,
+                                    editMode = false,
+                                    timestamp = entry.timestamp,
+                                    workout = null,
+                                    id = UUID.randomUUID().toString(),
+                                    listOfExercises = uiState.uniqueExerciseNames,
+                                )
                             )
-                        )
-                        onNavigateToExAdd()
-                    },
-                    modifier = Modifier.size(36.dp),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    )
+                            onNavigateToExAdd()
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "Add set",
-                        modifier = Modifier.size(28.dp),   // shrink the icon itself
-                        tint = MaterialTheme.colorScheme.secondary   // outline‑style color
+                        modifier = Modifier.size(36.dp),
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
 
 
+                //  Dropdown menu
                 var menuExpanded by remember { mutableStateOf(false) }
 
-                Box {
-                    IconButton(
-                        onClick = { menuExpanded = true },
-                        modifier = Modifier.size(36.dp),   // shrink the button if you want
-
-                    ) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
-                    }
+//                Box {
+//                    IconButton(
+//                        onClick = { menuExpanded = true },
+//                        modifier = Modifier.size(36.dp),   // shrink the button if you want
+//
+//                    ) {
+//                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+//                    }
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)   // this now controls the border diameter
+                        .clip(CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            menuExpanded = true
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = "Menu",
+                        modifier = Modifier.size(36.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
 
                     DropdownMenu(
                         expanded = menuExpanded,
