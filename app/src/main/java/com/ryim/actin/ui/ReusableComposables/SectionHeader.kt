@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
-    gapAbove: Boolean = true) {
+    gapAbove: Boolean = true,
+    padding: Int = 16) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -33,11 +34,11 @@ fun SectionHeader(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = padding.dp)
             )
 
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = padding.dp),
                 thickness = 2.dp,
                 color = MaterialTheme.colorScheme.tertiary
             )

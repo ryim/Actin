@@ -3,8 +3,10 @@ package com.ryim.actin.ui.screens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,12 +14,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ViewList
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,11 +52,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.R
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
+import com.ryim.actin.ui.ReusableComposables.RoundRectButton
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
+import com.ryim.actin.ui.ReusableComposables.StandardIconButton
 import com.ryim.actin.ui.SettingScreenViewModel
+import com.ryim.actin.ui.ThemeMode
 import kotlinx.coroutines.launch
-import com.ryim.actin.ui.theme.loadDarkMode
-import com.ryim.actin.ui.theme.saveDarkMode
+import com.ryim.actin.ui.theme.loadThemeMode
+import com.ryim.actin.ui.theme.saveThemeMode
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,30 +138,13 @@ fun SettingScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(8.dp),
-//            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            SectionHeader("General")
-
-//            // --- Toggle 1 ---
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "Enable notifications (to do)",
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    modifier = Modifier.weight(1f)
-//                )
-//
-//                var notificationsEnabled by remember { mutableStateOf(false) }
-//
-//                Switch(
-//                    checked = notificationsEnabled,
-//                    onCheckedChange = { notificationsEnabled = it }
-//                )
-//            }
+            //  ####################################################################################
+            SectionHeader("General",
+                padding = 0)
 
             // Dark mode toggle
             Row(
@@ -159,118 +157,257 @@ fun SettingScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-                val darkModeEnabled by loadDarkMode(context).collectAsState(initial = false)
+//                val darkModeEnabled by loadDarkMode(context).collectAsState(initial = false)
+//
+//                Switch(
+//                    checked = darkModeEnabled,
+//                    onCheckedChange = { enabled ->
+//                        scope.launch {
+//                            saveDarkMode(context, enabled)
+//                        }
+//                    }
+//                )
+                var expanded by remember { mutableStateOf(false) }
+                val themeMode by loadThemeMode(context).collectAsState(initial = ThemeMode.SYSTEM)
 
-                Switch(
-                    checked = darkModeEnabled,
-                    onCheckedChange = { enabled ->
-                        scope.launch {
-                            saveDarkMode(context, enabled)
+                Box {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                        ) {
+                            Text(
+                                when (themeMode) {
+                                    ThemeMode.SYSTEM -> "Use system setting"
+                                    ThemeMode.LIGHT -> "Light"
+                                    ThemeMode.DARK -> "Dark"
+                                }
+                            )
+
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Select theme mode",
+                            )
                         }
                     }
-                )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        ThemeMode.values().forEach { mode ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        when (mode) {
+                                            ThemeMode.SYSTEM -> "Use system setting"
+                                            ThemeMode.LIGHT -> "Light"
+                                            ThemeMode.DARK -> "Dark"
+                                        }
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    scope.launch { saveThemeMode(context, mode) }
+                                }
+                            )
+                        }
+                    }
+                }
             }
 
-//            // --- Toggle 3 ---
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "Dummy toggle",
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    modifier = Modifier.weight(1f)
-//                )
+            //  ####################################################################################
+            SectionHeader("Exercise data management",
+                padding = 0)
+
+//            CenteredActionButton(
+//                text = "Import JSON",
+//                onClick = {
+//                    importLauncher.launch(arrayOf("application/json"))
+//                },
+//                modifier = Modifier
+//            )
 //
-//                var autoSyncEnabled by remember { mutableStateOf(false) }
+//            CenteredActionButton(
+//                text = "Export JSON",
+//                onClick = {
+//                    exportLauncher.launch("exercises.json")
+//                },
+//                modifier = Modifier
+//            )
 //
-//                Switch(
-//                    checked = autoSyncEnabled,
-//                    onCheckedChange = { autoSyncEnabled = it }
-//                )
-//            }
+//            CenteredActionButton(
+//                text = "Export TSV",
+//                onClick = {
+//                    viewModel.requestTsvExport { tsv ->
+//                        pendingTsv = tsv
+//                        tsvExportLauncher.launch("exercises_export.tsv")
+//                    }
+//                },
+//                modifier = Modifier
+//            )
 
-//            SectionHeader("Timer settings")
-//
-//            // Global timer toggle
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "Use global timer",
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    modifier = Modifier.weight(1f)
-//                )
-//
-//                var autoSyncEnabled by remember { mutableStateOf(false) }
-//
-//                Switch(
-//                    checked = autoSyncEnabled,
-//                    onCheckedChange = { autoSyncEnabled = it }
-//                )
-//            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Import exercise data as JSON",
+                    modifier = Modifier.weight(1f)
+                )
 
-           SectionHeader("Exercise data management")
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                ) {
+                    StandardIconButton(
+                        icon = Icons.Default.FileUpload,
+                        onClick = { importLauncher.launch(arrayOf("application/json")) }
+                    )
+                }
+            }
 
-            CenteredActionButton(
-                text = "Import JSON",
-                onClick = {
-                    importLauncher.launch(arrayOf("application/json"))
-                },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Export exercise data as JSON",
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                ) {
+                    StandardIconButton(
+                        icon = Icons.Default.FileDownload,
+                        onClick = { exportLauncher.launch("exercises.json") }
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Export exercise data as TSV",
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                ) {
+                    StandardIconButton(
+                        icon = Icons.Default.ViewList,
+                        onClick = {
+                            viewModel.requestTsvExport { tsv ->
+                                pendingTsv = tsv
+                                tsvExportLauncher.launch("exercises_export.tsv")
+                            }
+                        }
+                    )
+                }
+            }
+
+            //  ####################################################################################
+            SectionHeader("Workout data management",
+                padding = 0)
+
+//            CenteredActionButton(
+//                text = "Import JSON",
+//                onClick = {
+//                    workoutImportLauncher.launch(arrayOf("application/json"))
+//                },
+//                modifier = Modifier
+//            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Import workout data",
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                ) {
+                    StandardIconButton(
+                        icon = Icons.Default.FileUpload,
+                        onClick = { workoutImportLauncher.launch(arrayOf("application/json")) }
+                    )
+                }
+            }
+
+//            CenteredActionButton(
+//                text = "Export JSON",
+//                onClick = {
+//                    workoutExportLauncher.launch("workouts.json")
+//                },
+//                modifier = Modifier
+//            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Export workout data",
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                ) {
+                    StandardIconButton(
+                        icon = Icons.Default.FileDownload,
+                        onClick = { workoutExportLauncher.launch("workouts.json") }
+                    )
+                }
+            }
+
+
+            //  ####################################################################################
+            SectionHeader("Other",
+                padding = 0)
+
+//            CenteredActionButton(
+//                text = "About",
+//                onClick = { /* To do! */ },
+//                modifier = Modifier
+//            )
+
+            Box(
                 modifier = Modifier
-            )
-
-            CenteredActionButton(
-                text = "Export JSON",
-                onClick = {
-                    exportLauncher.launch("exercises.json")
-                },
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                RoundRectButton(
+                    "About",
+                    onClick = { /* To do! */ }
+                )
+            }
+            Box(
                 modifier = Modifier
-            )
-
-            CenteredActionButton(
-                text = "Export TSV",
-                onClick = {
-                    viewModel.requestTsvExport { tsv ->
-                        pendingTsv = tsv
-                        tsvExportLauncher.launch("exercises_export.tsv")
-                    }
-                },
-                modifier = Modifier
-            )
-
-            SectionHeader("Workout data management")
-
-            CenteredActionButton(
-                text = "Import JSON",
-                onClick = {
-                    workoutImportLauncher.launch(arrayOf("application/json"))
-                },
-                modifier = Modifier
-            )
-
-            CenteredActionButton(
-                text = "Export JSON",
-                onClick = {
-                    workoutExportLauncher.launch("workouts.json")
-                },
-                modifier = Modifier
-            )
-
-            SectionHeader("Other")
-
-            CenteredActionButton(
-                text = "About",
-                onClick = { /* To do! */ },
-                modifier = Modifier
-            )
-
-            CenteredActionButton(
-                text = "License",
-                onClick = { /* To do! */ },
-                modifier = Modifier
-            )
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                RoundRectButton(
+                    text = "License",
+                    onClick = { /* To do! */ }
+                )
+            }
         }
 
     }

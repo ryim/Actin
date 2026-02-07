@@ -17,6 +17,8 @@ class SettingScreenViewModel @Inject constructor(
     private val app: Application
 ) : ViewModel() {
 
+
+
     fun exportToUri(uri: Uri) {
         viewModelScope.launch {
             val json = repo.exportJson()
@@ -69,4 +71,11 @@ class SettingScreenViewModel @Inject constructor(
             }
         }
     }
+}
+
+//  For the Dark Mode dropdown menu
+enum class ThemeMode {
+    SYSTEM,
+    LIGHT,
+    DARK
 }

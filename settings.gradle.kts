@@ -19,6 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ComposeTutorial"
+rootProject.name = "Actin"
 include(":app")
- 

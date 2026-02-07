@@ -6,6 +6,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.ryim.actin.ui.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryColDark,
@@ -28,12 +29,36 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainer = Color(0xFFffffff),
 )
 
+//@Composable
+//fun MyTheme(
+//    darkTheme: Boolean = isSystemInDarkTheme(),
+//    content: @Composable () -> Unit
+//) {
+//    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+//
+//    MaterialTheme(
+//        colorScheme = colorScheme,
+//        typography = Typography,
+//        content = content
+//    )
+//}
+
 @Composable
 fun MyTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    // Read the system setting
+    val systemDark = isSystemInDarkTheme()
+
+    // Decide which theme to use
+    val useDark = when (themeMode) {
+        ThemeMode.SYSTEM -> systemDark
+        ThemeMode.DARK -> true
+        ThemeMode.LIGHT -> false
+    }
+
+    val colorScheme = if (useDark) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

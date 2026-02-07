@@ -13,6 +13,7 @@ import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
+import com.ryim.actin.ui.ThemeMode
 import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.screens.EditWorkoutScreen
 import com.ryim.actin.ui.screens.HomeScreen
@@ -22,16 +23,19 @@ import com.ryim.actin.ui.screens.WorkoutListScreen
 import com.ryim.actin.ui.screens.SettingScreen
 import com.ryim.actin.ui.screens.SplashScreen
 import com.ryim.actin.ui.screens.WorkoutRunScreen
-import com.ryim.actin.ui.theme.loadDarkMode
+//import com.ryim.actin.ui.theme.loadDarkMode
 import com.ryim.actin.ui.theme.MyTheme
+import com.ryim.actin.ui.theme.loadThemeMode
 
 @Composable
 fun LaunchAppByTheme() {
     val context = LocalContext.current
-    val darkModeEnabled by loadDarkMode(context).collectAsState(initial = false)
 
-//    AppNavHost()
-    MyTheme(darkTheme = darkModeEnabled) {
+    // Load the stored theme mode (SYSTEM, LIGHT, DARK)
+    val themeMode by loadThemeMode(context)
+        .collectAsState(initial = ThemeMode.SYSTEM)
+
+    MyTheme(themeMode = themeMode) {
         AppNavHost()
     }
 }

@@ -2,7 +2,6 @@ package com.ryim.actin.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,28 +15,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,7 +58,9 @@ import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.MainUiState
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
+import com.ryim.actin.ui.ReusableComposables.RoundRectButton
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
+import com.ryim.actin.ui.ReusableComposables.StandardIconButton
 import com.ryim.actin.ui.SharedExAddViewModel
 import com.ryim.actin.ui.theme.SplashBack
 import kotlinx.datetime.Clock
@@ -215,52 +208,40 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
-            Button(
-                onClick = { onExercise() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                    contentColor = Color.White
-                )
+            //  Big yellow buttons for starting workouts or exercises
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(
+                RoundRectButton(
                     "Start a workout",
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
+                    onClick = { onExercise() })
 
-            Spacer(modifier = Modifier.height(18.dp))
+//                Spacer(modifier = Modifier.height(18.dp))
 
-            Button(
-                onClick = {
-                    sharedExAddViewModel.setPrefill(
-                        ExAddPrefill(
-                            name = "",
-                            sets = 3,
-                            reps = List(3) { 8 },
-                            weights = List(3) { "" },
-                            useKg = true,
-                            editMode = false,
-                            timestamp = null,
-                            workout = null,
-                            id = UUID.randomUUID().toString(),
-                            listOfExercises = uiState.uniqueExerciseNames,
+                RoundRectButton(
+                    "Start a single exercise",
+                    onClick = {
+                        sharedExAddViewModel.setPrefill(
+                            ExAddPrefill(
+                                name = "",
+                                sets = 3,
+                                reps = List(3) { 8 },
+                                weights = List(3) { "" },
+                                useKg = true,
+                                editMode = false,
+                                timestamp = null,
+                                workout = null,
+                                id = UUID.randomUUID().toString(),
+                                listOfExercises = uiState.uniqueExerciseNames,
+                            )
                         )
-                    )
-                    onNavigateToExAdd()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                    contentColor = Color.White
-                )
-            ) {
-                Text(
-                    "Start an individual exercise",
-                    color = MaterialTheme.colorScheme.onSecondary
+                        onNavigateToExAdd()
+                    }
                 )
             }
-
-           SectionHeader("Recent activity")
+            SectionHeader("Recent activity")
 
             // History list for the exercises
             var entryToDelete by remember { mutableStateOf<ExerciseEntry?>(null) }
@@ -467,44 +448,9 @@ fun ExerciseHistoryRow(
                 }
 
                 // Right side: the + button
-//                IconButton(
-//                    onClick = {
-//                        sharedExAddViewModel.setPrefill(
-//                            ExAddPrefill(
-//                                name = entry.name,
-//                                sets = entry.sets,
-//                                reps = entry.reps,
-//                                weights = entry.weights.map { it.toString() },
-//                                useKg = entry.useKg,
-//                                editMode = false,
-//                                timestamp = entry.timestamp,
-//                                workout = null,
-//                                id = UUID.randomUUID().toString(),
-//                                listOfExercises = uiState.uniqueExerciseNames,
-//                            )
-//                        )
-//                        onNavigateToExAdd()
-//                    },
-//                    modifier = Modifier.size(36.dp),
-//                    colors = IconButtonDefaults.iconButtonColors(
-//                        containerColor = MaterialTheme.colorScheme.surface,
-//                    )
-//                ) {
-//                    Icon(
-//                        Icons.Default.Add,
-//                        contentDescription = "Add set",
-//                        modifier = Modifier.size(28.dp),   // shrink the icon itself
-//                        tint = MaterialTheme.colorScheme.secondary   // outline‑style color
-//                    )
-//                }
-
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)   // this now controls the border diameter
-                        .clip(CircleShape)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                        ) {
+                StandardIconButton(
+                    icon = Icons.Default.Add,
+                    onClick = {
                             sharedExAddViewModel.setPrefill(
                                 ExAddPrefill(
                                     name = entry.name,
@@ -521,16 +467,10 @@ fun ExerciseHistoryRow(
                             )
                             onNavigateToExAdd()
                         },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = "Add set",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
+                )
 
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 //  Dropdown menu
                 var menuExpanded by remember { mutableStateOf(false) }
@@ -601,6 +541,8 @@ fun ExerciseHistoryRow(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     }
