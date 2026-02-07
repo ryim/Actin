@@ -2,7 +2,6 @@ package com.ryim.actin.ui.screens
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,9 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
-import androidx.compose.material.icons.filled.ViewList
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,25 +25,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ryim.actin.R
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
 import com.ryim.actin.ui.ReusableComposables.RoundRectButton
@@ -146,7 +134,7 @@ fun SettingScreen(
             SectionHeader("General",
                 padding = 0)
 
-            // Dark mode toggle
+            // Dark mode selector
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -157,16 +145,6 @@ fun SettingScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-//                val darkModeEnabled by loadDarkMode(context).collectAsState(initial = false)
-//
-//                Switch(
-//                    checked = darkModeEnabled,
-//                    onCheckedChange = { enabled ->
-//                        scope.launch {
-//                            saveDarkMode(context, enabled)
-//                        }
-//                    }
-//                )
                 var expanded by remember { mutableStateOf(false) }
                 val themeMode by loadThemeMode(context).collectAsState(initial = ThemeMode.SYSTEM)
 
@@ -200,7 +178,7 @@ fun SettingScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        ThemeMode.values().forEach { mode ->
+                        ThemeMode.entries.forEach { mode ->
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -224,33 +202,6 @@ fun SettingScreen(
             //  ####################################################################################
             SectionHeader("Exercise data management",
                 padding = 0)
-
-//            CenteredActionButton(
-//                text = "Import JSON",
-//                onClick = {
-//                    importLauncher.launch(arrayOf("application/json"))
-//                },
-//                modifier = Modifier
-//            )
-//
-//            CenteredActionButton(
-//                text = "Export JSON",
-//                onClick = {
-//                    exportLauncher.launch("exercises.json")
-//                },
-//                modifier = Modifier
-//            )
-//
-//            CenteredActionButton(
-//                text = "Export TSV",
-//                onClick = {
-//                    viewModel.requestTsvExport { tsv ->
-//                        pendingTsv = tsv
-//                        tsvExportLauncher.launch("exercises_export.tsv")
-//                    }
-//                },
-//                modifier = Modifier
-//            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -306,7 +257,7 @@ fun SettingScreen(
                         .padding(horizontal = 8.dp)
                 ) {
                     StandardIconButton(
-                        icon = Icons.Default.ViewList,
+                        icon = Icons.AutoMirrored.Filled.ViewList,
                         onClick = {
                             viewModel.requestTsvExport { tsv ->
                                 pendingTsv = tsv
@@ -320,14 +271,6 @@ fun SettingScreen(
             //  ####################################################################################
             SectionHeader("Workout data management",
                 padding = 0)
-
-//            CenteredActionButton(
-//                text = "Import JSON",
-//                onClick = {
-//                    workoutImportLauncher.launch(arrayOf("application/json"))
-//                },
-//                modifier = Modifier
-//            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -348,14 +291,6 @@ fun SettingScreen(
                     )
                 }
             }
-
-//            CenteredActionButton(
-//                text = "Export JSON",
-//                onClick = {
-//                    workoutExportLauncher.launch("workouts.json")
-//                },
-//                modifier = Modifier
-//            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -382,12 +317,6 @@ fun SettingScreen(
             SectionHeader("Other",
                 padding = 0)
 
-//            CenteredActionButton(
-//                text = "About",
-//                onClick = { /* To do! */ },
-//                modifier = Modifier
-//            )
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -410,30 +339,5 @@ fun SettingScreen(
             }
         }
 
-    }
-}
-
-@Composable
-fun CenteredActionButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            )
-        ) {
-            Text(text)
-        }
     }
 }

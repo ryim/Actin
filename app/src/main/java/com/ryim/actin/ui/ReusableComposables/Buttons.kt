@@ -1,6 +1,5 @@
 package com.ryim.actin.ui.ReusableComposables
 
-import android.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +28,9 @@ fun RoundRectButton(
     text: String,
     onClick: () -> Unit
 ) {
-
     Box {
         Button(
-            onClick = { onClick },
+            onClick = { onClick() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary
