@@ -50,6 +50,7 @@ import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.style.TextOverflow
 import com.ryim.actin.ui.MetricType
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
@@ -280,81 +281,72 @@ fun GraphSelectors(
     uiState: FullHistoryUIState,
     viewModel: ProgressScreenViewModel
 ) {
-    val selectorScrollState = rememberScrollState()
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 16.dp),
-//        verticalArrangement = Arrangement.spacedBy(8.dp)
-//    ) {
+//    val selectorScrollState = rememberScrollState()
 
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .horizontalScroll(selectorScrollState)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    Row(
+        modifier = Modifier.fillMaxWidth()
+//            .horizontalScroll(selectorScrollState)
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+
+        // Metric
+        Column(
+            modifier = Modifier.wrapContentWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+            Text(
+                text = "Metric",
+                style = MaterialTheme.typography.labelMedium
+            )
 
-            // Metric
-            Column(
-                modifier = Modifier.wrapContentWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "Metric",
-                    style = MaterialTheme.typography.labelMedium
-                )
-
-                MetricSelector(
-                    uiState = uiState,
-                    onMetricSelected = { metric ->
-                        uiState.selectedExerciseName?.let { exercise ->
-                            viewModel.setMetric(metric, exercise)
-                        }
+            MetricSelector(
+                uiState = uiState,
+                onMetricSelected = { metric ->
+                    uiState.selectedExerciseName?.let { exercise ->
+                        viewModel.setMetric(metric, exercise)
                     }
-                )
-            }
-
-            // Time Period
-            Column(
-                modifier = Modifier.wrapContentWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "Time Period",
-                    style = MaterialTheme.typography.labelMedium
-                )
-
-                TimePeriodSelector(
-                    uiState = uiState,
-                    onPeriodSelected = { period ->
-                        viewModel.setTimePeriod(period)
-                    }
-                )
-            }
-
-            // Exercise Selector
-            Column(
-                modifier = Modifier.wrapContentWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "Exercise",
-                    style = MaterialTheme.typography.labelMedium
-                )
-
-                ExerciseSelector(
-                    uiState = uiState,
-                    onExerciseSelected = { name ->
-                        viewModel.setSelectedExercise(name)
-                    }
-                )
-            }
+                }
+            )
         }
 
+        // Time Period
+        Column(
+            modifier = Modifier.wrapContentWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = "Time Period",
+                style = MaterialTheme.typography.labelMedium
+            )
 
-//    }
+            TimePeriodSelector(
+                uiState = uiState,
+                onPeriodSelected = { period ->
+                    viewModel.setTimePeriod(period)
+                }
+            )
+        }
+
+        // Exercise Selector
+        Column(
+            modifier = Modifier
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = "Exercise",
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            ExerciseSelector(
+                uiState = uiState,
+                onExerciseSelected = { name ->
+                    viewModel.setSelectedExercise(name)
+                }
+            )
+        }
+    }
 }
 
 
@@ -426,6 +418,9 @@ fun ExerciseSelector(
                 Text(
                     uiState.selectedExerciseName ?: "Select exercise",
                     modifier = Modifier.padding(start = 4.dp)
+                        .weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Icon(
