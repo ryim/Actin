@@ -7,6 +7,8 @@ import com.ryim.actin.domain.ExerciseEntry
 import com.ryim.actin.domain.ExerciseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,6 +29,9 @@ import kotlin.time.ExperimentalTime
 class ExAddEditViewModel @Inject constructor(
     private val repo: ExerciseRepository
 ) : ViewModel() {
+
+    //  Autosaving job to track the debounce timer
+    private var autosaveJob: Job? = null
 
     //  Today's date
     private val today: LocalDate =
@@ -83,7 +88,8 @@ class ExAddEditViewModel @Inject constructor(
                 useKg = oldUseKg,
                 editMode = editMode,
                 workout = workout,
-                id = id
+                id = id,
+                originalEditMode = editMode
             )
         }
 
@@ -102,10 +108,13 @@ class ExAddEditViewModel @Inject constructor(
                 )
             }
         }
+
+        scheduleAutosave()
     }
 
     fun onNameChanged(newName: String) {
         _uiState.update { it.copy(name = newName) }
+        scheduleAutosave()
     }
 
     fun incrementSets() {
@@ -118,6 +127,7 @@ class ExAddEditViewModel @Inject constructor(
                 reps = List(newSets) { i -> state.reps.getOrNull(i) ?: 0 }
             )
         }
+        scheduleAutosave()
     }
 
     fun decrementSets() {
@@ -132,6 +142,7 @@ class ExAddEditViewModel @Inject constructor(
                 weights = state.weights.take(newSets)
             )
         }
+        scheduleAutosave()
     }
 
     fun incrementRep(index: Int) {
@@ -141,6 +152,7 @@ class ExAddEditViewModel @Inject constructor(
             }
             state.copy(reps = updated)
         }
+        scheduleAutosave()
     }
 
     fun decrementRep(index: Int) {
@@ -150,6 +162,7 @@ class ExAddEditViewModel @Inject constructor(
             }
             state.copy(reps = updated)
         }
+        scheduleAutosave()
     }
 
     fun updateWeight(index: Int, newText: String) {
@@ -159,10 +172,12 @@ class ExAddEditViewModel @Inject constructor(
             }
             state.copy(weights = updated)
         }
+        scheduleAutosave()
     }
 
     fun onUseKgChanged(newValue: Boolean) {
         _uiState.update { it.copy(useKg = newValue) }
+        scheduleAutosave()
     }
 
     fun updateDate(day: Int, month: Int, year: Int) {
@@ -173,6 +188,7 @@ class ExAddEditViewModel @Inject constructor(
                 year = year.toString()
             )
         }
+        scheduleAutosave()
     }
 
     fun updateTime(hour: Int, minute: Int) {
@@ -181,6 +197,67 @@ class ExAddEditViewModel @Inject constructor(
                 hour = hour.toString(),
                 minute = minute.toString()
             )
+        }
+        scheduleAutosave()
+    }
+
+    //                              Autosaving and saving apparatus
+
+    fun scheduleAutosave() {
+        autosaveJob?.cancel()
+
+        autosaveJob = viewModelScope.launch {
+            delay(3000) // wait 3 seconds after last edit
+            performAutosave()
+        }
+    }
+
+    private suspend fun performAutosave() {
+        saveExercise() // your existing save logic
+
+        // Show autosaved banner
+        _uiState.update { it.copy(autosaved = true) }
+
+        delay(1000) // show for 1 second
+
+        _uiState.update { it.copy(autosaved = false) }
+    }
+
+    //  When I am editing something, and have made some changes, but want to cancel, restore the old
+    //  shit. The button on the screen will call onBack.
+    fun restoreOriginal(prefill: ExAddPrefill) {
+        viewModelScope.launch {
+
+            // Convert timestamp → Instant → LocalDateTime
+            val local = prefill.timestamp?.let { ts ->
+                val instant = Instant.parse(ts)
+                instant.toLocalDateTime(TimeZone.currentSystemDefault())
+            }
+
+            val entry = ExerciseEntry(
+                name = prefill.name,
+                sets = prefill.sets,
+                reps = prefill.reps,
+                weights = prefill.weights.map { it.toFloatOrNull() ?: 0f },
+                useKg = prefill.useKg,
+                day = local?.date?.dayOfMonth ?: 0,
+                month = local?.date?.monthNumber ?: 0,
+                year = local?.date?.year ?: 0,
+                timestamp = prefill.timestamp ?: "",
+                workout = prefill.workout ?: "",
+                id = prefill.id
+            )
+
+            repo.saveOrReplaceExercise(entry, editMode = true)
+        }
+    }
+
+    //  If I launch this screen in add mode, then cancel, I need to delete the autosaved exercises
+    //  before I exit.
+    fun deleteCurrentExercise() {
+        val id = uiState.value.id
+        viewModelScope.launch {
+            repo.deleteExercise(id)
         }
     }
 
@@ -241,5 +318,9 @@ data class ExAddUiState(
 
     // New time fields
     val hour: String = "12",
-    val minute: String = "00"
+    val minute: String = "00",
+
+    // Autosave features
+    val autosaved: Boolean = false,
+    val originalEditMode: Boolean = false
 )

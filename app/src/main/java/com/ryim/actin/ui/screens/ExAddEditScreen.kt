@@ -7,16 +7,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,518 +83,544 @@ fun ExAddEditScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Exercise",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        //  The main scaffold for the screen
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Exercise",
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
                 )
-            )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .navigationBarsPadding()   // ← This is the magic line
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onBack,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        "Back",
-//                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                Button(
-                    onClick = {
-                        viewModel.saveExercise()
-                        onBack()
-                    },
-                    enabled = canSave,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text(
-                        "Confirm",
-//                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
-        }
-
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            val isNameError = uiState.name.isBlank()
-            val suggestions = remember(uiState.name, prefill) {
-                prefill?.listOfExercises
-                    ?.filter { it.contains(uiState.name, ignoreCase = true) }
-                    ?.sorted()
-                    ?.take(6)
-                    ?: emptyList()
-            }
-
-            val focusRequester = remember { FocusRequester() }
-            var expanded by remember { mutableStateOf(false) }
-            var isFocused by remember { mutableStateOf(false) }
-
-            Column {
-                TextField(
-                    value = uiState.name,
-                    onValueChange = {
-                        viewModel.onNameChanged(it)
-                        expanded = true
-                    },
-                    label = { Text("Exercise name") },
-                    isError = isNameError,
-                    supportingText = {
-                        if (isNameError) Text("Name is required")
-                    },
+            },
+            bottomBar = {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { state ->
-                            isFocused = state.isFocused
-                            if (!state.isFocused) expanded = false
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .navigationBarsPadding()   // ← This is the magic line
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = {
+                            if (prefill?.editMode ?: false) {
+                                viewModel.restoreOriginal(prefill)
+                            } else {
+                                viewModel.deleteCurrentExercise()
+                            }
+                            onBack()
                         },
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences
-                    )
-                )
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            "Cancel",
+    //                        color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.saveExercise()
+                            onBack()
+                        },
+                        enabled = canSave,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary, // different from box
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text(
+                            "Confirm",
+    //                        color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            }
 
-                if (expanded && isFocused && suggestions.isNotEmpty()) {
-                    Card(
+        ) { innerPadding ->
+
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val isNameError = uiState.name.isBlank()
+                val suggestions = remember(uiState.name, prefill) {
+                    prefill?.listOfExercises
+                        ?.filter { it.contains(uiState.name, ignoreCase = true) }
+                        ?.sorted()
+                        ?.take(6)
+                        ?: emptyList()
+                }
+
+                val focusRequester = remember { FocusRequester() }
+                var expanded by remember { mutableStateOf(false) }
+                var isFocused by remember { mutableStateOf(false) }
+
+                Column {
+                    TextField(
+                        value = uiState.name,
+                        onValueChange = {
+                            viewModel.onNameChanged(it)
+                            expanded = true
+                        },
+                        label = { Text("Exercise name") },
+                        isError = isNameError,
+                        supportingText = {
+                            if (isNameError) Text("Name is required")
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp)
-                    ) {
-                        LazyColumn(
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { state ->
+                                isFocused = state.isFocused
+                                if (!state.isFocused) expanded = false
+                            },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        )
+                    )
+
+                    if (expanded && isFocused && suggestions.isNotEmpty()) {
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 200.dp) // limit size
-                                .padding(8.dp)
+                                .padding(top = 4.dp)
                         ) {
-                            items(suggestions) { suggestion ->
-                                Text(
-                                    text = suggestion,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            viewModel.onNameChanged(suggestion)
-                                            expanded = false
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 200.dp) // limit size
+                                    .padding(8.dp)
+                            ) {
+                                items(suggestions) { suggestion ->
+                                    Text(
+                                        text = suggestion,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                viewModel.onNameChanged(suggestion)
+                                                expanded = false
 
-                                            // Keep focus on the text field
-                                            focusRequester.requestFocus()
-                                        }
-                                        .padding(12.dp)
-                                )
+                                                // Keep focus on the text field
+                                                focusRequester.requestFocus()
+                                            }
+                                            .padding(12.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-//            MinuteSecondStepper(
-//                minutes = minutes,
-//                seconds = seconds,
-//                onMinutesChange = { minutes = it },
-//                onSecondsChange = { seconds = it }
-//            )
-//
-//            StartTimerButton(minutes, seconds) {
-//                scheduleTimerNotification(context, minutes, seconds)
-//            }
+    //            MinuteSecondStepper(
+    //                minutes = minutes,
+    //                seconds = seconds,
+    //                onMinutesChange = { minutes = it },
+    //                onSecondsChange = { seconds = it }
+    //            )
+    //
+    //            StartTimerButton(minutes, seconds) {
+    //                scheduleTimerNotification(context, minutes, seconds)
+    //            }
 
-            Text(
-                text = "Number of sets",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                textAlign = TextAlign.Start
-            )
+                Text(
+                    text = "Number of sets",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
+                    textAlign = TextAlign.Start
+                )
 
-            // How many sets?
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
+                // How many sets?
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    // Display-only number box
-                    Box(
-                        modifier = Modifier
-                            .width(64.dp)
-                            .height(32.dp)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = uiState.sets.toString(),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // ✅ Up arrow
-                    IconButton(
-                        onClick = { viewModel.incrementSets() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = "Increase"
-                        )
-                    }
-
-                    // ✅ Down arrow
-                    IconButton(
-                        onClick = { viewModel.decrementSets() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Decrease"
-                        )
-                    }
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                // Labels
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(
-                    text = "Reps",
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Spacer(modifier = Modifier.width(64.dp))
-                Text(
-                    text = "Weight",
-                    style = MaterialTheme.typography.labelSmall
-                )
-//                Spacer(modifier = Modifier.width(2.dp))
-            }
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
-            ) {
-                uiState.reps.forEachIndexed { index, repsValue ->
-
-                    Column(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(horizontal = 16.dp)
                     ) {
+                        // Display-only number box
+                        Box(
+                            modifier = Modifier
+                                .width(64.dp)
+                                .height(32.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                .padding(horizontal = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = uiState.sets.toString(),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
 
-                        // Row containing set title, sub-labels + controls
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        // ✅ Up arrow
+                        IconButton(
+                            onClick = { viewModel.incrementSets() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = "Increase"
+                            )
+                        }
+
+                        // ✅ Down arrow
+                        IconButton(
+                            onClick = { viewModel.decrementSets() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Decrease"
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    // Labels
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        text = "Reps",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    Spacer(modifier = Modifier.width(64.dp))
+                    Text(
+                        text = "Weight",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+    //                Spacer(modifier = Modifier.width(2.dp))
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    uiState.reps.forEachIndexed { index, repsValue ->
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
 
-                            // Main label
-                            Text(
-                                text = "Set ${index + 1}",
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            // --- Reps Column ---
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.weight(1f)
+                            // Row containing set title, sub-labels + controls
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                             ) {
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
+                                // Main label
+                                Text(
+                                    text = "Set ${index + 1}",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                // --- Reps Column ---
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.weight(1f)
                                 ) {
 
-                                    // Display box
-                                    Box(
-                                        modifier = Modifier
-                                            .width(60.dp)
-                                            .height(32.dp)
-                                            .border(
-                                                width = 1.dp,
-                                                color = MaterialTheme.colorScheme.outline,
-                                                shape = MaterialTheme.shapes.medium
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+
+                                        // Display box
+                                        Box(
+                                            modifier = Modifier
+                                                .width(60.dp)
+                                                .height(32.dp)
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = MaterialTheme.colorScheme.outline,
+                                                    shape = MaterialTheme.shapes.medium
+                                                )
+                                                .padding(horizontal = 8.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = repsValue.toString(),
+                                                style = MaterialTheme.typography.bodySmall
                                             )
-                                            .padding(horizontal = 8.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = repsValue.toString(),
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-
-                                    // Up arrow
-                                    IconButton(
-                                        onClick = { viewModel.incrementRep(index) }
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase reps")
-                                    }
-
-                                    // Down arrow
-                                    IconButton(
-                                        onClick = { viewModel.decrementRep(index) }
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrease reps")
-                                    }
-                                }
-                            }
-
-                            // --- Weight Column ---
-                            Box(
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .height(32.dp)
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outline,
-                                        shape = MaterialTheme.shapes.small
-                                    ),
-                                contentAlignment = Alignment.Center   // ← centers the text vertically & horizontally
-                            ) {
-                                BasicTextField(
-                                    value = uiState.weights[index],
-                                    onValueChange = { newValue ->
-                                        if (newValue.isEmpty() || newValue.matches(Regex("""\d*\.?\d*"""))) {
-                                            viewModel.updateWeight(index, newValue)
                                         }
-                                    },
-                                    singleLine = true,
-                                    textStyle = MaterialTheme.typography.bodySmall.copy(
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier
-                                        .fillMaxWidth()   // let the Box handle centering
-                                        .padding(0.dp)    // no internal padding
-                                )
-                            }
-                        }
-                    }
-                }
-            }
 
-            //  Button to use KG or lb
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = if (uiState.useKg) "Using kg" else "Using lb",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(1f)
-                )
+                                        // Up arrow
+                                        IconButton(
+                                            onClick = { viewModel.incrementRep(index) }
+                                        ) {
+                                            Icon(
+                                                Icons.Default.KeyboardArrowUp,
+                                                contentDescription = "Increase reps"
+                                            )
+                                        }
 
-                Switch(
-                    checked = uiState.useKg,
-                    onCheckedChange = { viewModel.onUseKgChanged(it) }
-                )
-            }
-
-            // Date stuff
-            Text(
-                text = "Date and time",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                textAlign = TextAlign.Start
-            )
-
-            val monthAbb = monthAbbrev(uiState.month.toInt())
-
-            Text(
-                text = "${uiState.day} $monthAbb ${uiState.year} • ${uiState.hour}:${uiState.minute}",
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                textAlign = TextAlign.Start
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-//                // Day
-//                OutlinedTextField(
-//                    value = uiState.day,
-//                    onValueChange = { if (it.all(Char::isDigit)) viewModel.onDayChanged(it) },
-//                    label = { Text("Day") },
-//                    singleLine = true,
-//                    modifier = Modifier.weight(1f),
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-//                )
-//
-//                // Month
-//                OutlinedTextField(
-//                    value = uiState.month,
-//                    onValueChange = { if (it.all(Char::isDigit)) viewModel.onMonthChanged(it) },
-//                    label = { Text("Month") },
-//                    singleLine = true,
-//                    modifier = Modifier.weight(1f),
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-//                )
-//
-//                // Year
-//                OutlinedTextField(
-//                    value = uiState.year,
-//                    onValueChange = { if (it.all(Char::isDigit)) viewModel.onYearChanged(it) },
-//                    label = { Text("Year") },
-//                    singleLine = true,
-//                    modifier = Modifier.weight(1f),
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-//                )
-
-                Button(
-                    onClick = {
-                        showDatePicker = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text(
-                        "Change date",
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        showTimePicker = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text(
-                        "Change time",
-                    )
-                }
-
-                if (showDatePicker) {
-                    DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                val millis = datePickerState.selectedDateMillis
-                                if (millis != null) {
-                                    val date = Instant
-                                        .fromEpochMilliseconds(millis)
-                                        .toLocalDateTime(TimeZone.currentSystemDefault())
-                                        .date
-
-                                    viewModel.updateDate(
-                                        date.dayOfMonth,
-                                        date.monthNumber,
-                                        date.year
-                                    )
-
+                                        // Down arrow
+                                        IconButton(
+                                            onClick = { viewModel.decrementRep(index) }
+                                        ) {
+                                            Icon(
+                                                Icons.Default.KeyboardArrowDown,
+                                                contentDescription = "Decrease reps"
+                                            )
+                                        }
+                                    }
                                 }
-                                showDatePicker = false
-                            }) { Text("OK") }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDatePicker = false }) {
-                                Text("Cancel")
+
+                                // --- Weight Column ---
+                                Box(
+                                    modifier = Modifier
+                                        .width(80.dp)
+                                        .height(32.dp)
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outline,
+                                            shape = MaterialTheme.shapes.small
+                                        ),
+                                    contentAlignment = Alignment.Center   // ← centers the text vertically & horizontally
+                                ) {
+                                    BasicTextField(
+                                        value = uiState.weights[index],
+                                        onValueChange = { newValue ->
+                                            if (newValue.isEmpty() || newValue.matches(Regex("""\d*\.?\d*"""))) {
+                                                viewModel.updateWeight(index, newValue)
+                                            }
+                                        },
+                                        singleLine = true,
+                                        textStyle = MaterialTheme.typography.bodySmall.copy(
+                                            textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        ),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        modifier = Modifier
+                                            .fillMaxWidth()   // let the Box handle centering
+                                            .padding(0.dp)    // no internal padding
+                                    )
+                                }
                             }
                         }
-                    ) {
-                        DatePicker(state = datePickerState)
                     }
                 }
 
-                if (showTimePicker) {
-                    TimePickerDialog(
-                        onDismissRequest = { showTimePicker = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                viewModel.updateTime(
-                                    timePickerState.hour,
-                                    timePickerState.minute
-                                )
-                                showTimePicker = false
-                            }) { Text("OK") }
+                //  Button to use KG or lb
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = if (uiState.useKg) "Using kg" else "Using lb",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Switch(
+                        checked = uiState.useKg,
+                        onCheckedChange = { viewModel.onUseKgChanged(it) }
+                    )
+                }
+
+                // Date stuff
+                Text(
+                    text = "Date and time",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
+                    textAlign = TextAlign.Start
+                )
+
+                val monthAbb = monthAbbrev(uiState.month.toInt())
+
+                Text(
+                    text = "${uiState.day} $monthAbb ${uiState.year} • ${uiState.hour}:${uiState.minute}",
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
+                    textAlign = TextAlign.Start
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    Button(
+                        onClick = {
+                            showDatePicker = true
                         },
-                        dismissButton = {
-                            TextButton(onClick = { showTimePicker = false }) {
-                                Text("Cancel")
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            "Change date",
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            showTimePicker = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            "Change time",
+                        )
+                    }
+
+                    if (showDatePicker) {
+                        DatePickerDialog(
+                            onDismissRequest = { showDatePicker = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    val millis = datePickerState.selectedDateMillis
+                                    if (millis != null) {
+                                        val date = Instant
+                                            .fromEpochMilliseconds(millis)
+                                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                                            .date
+
+                                        viewModel.updateDate(
+                                            date.dayOfMonth,
+                                            date.monthNumber,
+                                            date.year
+                                        )
+
+                                    }
+                                    showDatePicker = false
+                                }) { Text("OK") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDatePicker = false }) {
+                                    Text("Cancel")
+                                }
                             }
-                        },
-                        title = { Text("Select time") }
-                    ) {
-                        TimePicker(state = timePickerState)
+                        ) {
+                            DatePicker(state = datePickerState)
+                        }
+                    }
+
+                    if (showTimePicker) {
+                        TimePickerDialog(
+                            onDismissRequest = { showTimePicker = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    viewModel.updateTime(
+                                        timePickerState.hour,
+                                        timePickerState.minute
+                                    )
+                                    showTimePicker = false
+                                }) { Text("OK") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showTimePicker = false }) {
+                                    Text("Cancel")
+                                }
+                            },
+                            title = { Text("Select time") }
+                        ) {
+                            TimePicker(state = timePickerState)
+                        }
                     }
                 }
-
             }
+        }
+
+        if (uiState.autosaved) {
+            AutosaveOverlay(
+                modifier = Modifier
+                    .align(Alignment.Center)
+            )
+        }
+    }
+}
+
+@Composable
+fun AutosaveOverlay(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier
+            .padding(16.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primary,
+        tonalElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "Saved",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
