@@ -27,7 +27,8 @@ import androidx.compose.ui.unit.dp
 fun RoundRectButton(
     text: String,
     mode: ButtonMode = ButtonMode.Yellow,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     val (background, content) = when (mode) {
         ButtonMode.Yellow -> MaterialTheme.colorScheme.secondary to MaterialTheme.colorScheme.onSecondary
@@ -41,6 +42,7 @@ fun RoundRectButton(
                 containerColor = background,
                 contentColor = content
             ),
+            enabled = enabled,
             shape = RoundedCornerShape(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
         ) {
@@ -62,7 +64,7 @@ enum class ButtonMode {
 
 @Composable
 fun StandardIconButton(
-    mode: Color = MaterialTheme.colorScheme.secondary,
+    colour: Color = MaterialTheme.colorScheme.secondary,
     icon: ImageVector,
     contentDescription: String = "",
     onClick: () -> Unit,
@@ -82,7 +84,7 @@ fun StandardIconButton(
             icon,
             contentDescription = contentDescription,
             modifier = Modifier.size(36.dp),
-            tint = mode
+            tint = colour
         )
     }
 }

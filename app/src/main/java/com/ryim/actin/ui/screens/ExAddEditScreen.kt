@@ -1,12 +1,10 @@
 package com.ryim.actin.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -14,8 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,21 +26,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import com.ryim.actin.ui.ExAddEditViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryim.actin.domain.formatTimestampPretty
 import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
+import com.ryim.actin.ui.ReusableComposables.ButtonMode
+import com.ryim.actin.ui.ReusableComposables.RoundRectButton
+import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.ReusableComposables.SuggestionTextField
+import com.ryim.actin.ui.ReusableComposables.UpDownCounter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.intellij.lang.annotations.JdkConstants
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -118,7 +115,8 @@ fun ExAddEditScreen(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(
+
+                    RoundRectButton(
                         onClick = {
                             if (prefill?.editMode ?: false) {
                                 viewModel.restoreOriginal(prefill)
@@ -127,32 +125,18 @@ fun ExAddEditScreen(
                             }
                             onBack()
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(
-                            "Cancel",
-    //                        color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    Button(
+                        text = "Cancel",
+                        mode = ButtonMode.Blue
+                    )
+
+                    RoundRectButton(
                         onClick = {
                             viewModel.saveExercise()
                             onBack()
                         },
                         enabled = canSave,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text(
-                            "Confirm",
-    //                        color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                        text = "Confirm"
+                    )
                 }
             }
 
@@ -169,7 +153,7 @@ fun ExAddEditScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-//                val isNameError = uiState.name.isBlank()
+                //  The name field
                 val suggestions = remember(uiState.name, prefill) {
                     prefill?.listOfExercises
                         ?.filter { it.contains(uiState.name, ignoreCase = true) }
@@ -177,10 +161,6 @@ fun ExAddEditScreen(
                         ?.take(6)
                         ?: emptyList()
                 }
-
-//                val focusRequester = remember { FocusRequester() }
-//                var expanded by remember { mutableStateOf(false) }
-//                var isFocused by remember { mutableStateOf(false) }
 
                 SuggestionTextField(
                     value = uiState.name,
@@ -201,92 +181,30 @@ fun ExAddEditScreen(
     //                scheduleTimerNotification(context, minutes, seconds)
     //            }
 
-                Text(
-                    text = "Number of sets",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    textAlign = TextAlign.Start
-                )
+                SectionHeader("Your data")
 
                 // How many sets?
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        // Display-only number box
-                        Box(
-                            modifier = Modifier
-                                .width(64.dp)
-                                .height(32.dp)
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.outline,
-                                    shape = MaterialTheme.shapes.medium
-                                )
-                                .padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = uiState.sets.toString(),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // ✅ Up arrow
-                        IconButton(
-                            onClick = { viewModel.incrementSets() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Increase"
-                            )
-                        }
-
-                        // ✅ Down arrow
-                        IconButton(
-                            onClick = { viewModel.decrementSets() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Decrease"
-                            )
-                        }
-                    }
-                }
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
                 ) {
-                    // Labels
-                    Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = "Reps",
-                        style = MaterialTheme.typography.labelSmall
+                        text = "Number of sets",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier
+                            .padding(start = 16.dp),
+                        textAlign = TextAlign.Start
                     )
-                    Spacer(modifier = Modifier.width(64.dp))
-                    Text(
-                        text = "Weight",
-                        style = MaterialTheme.typography.labelSmall
+
+                    UpDownCounter(
+                        sets = uiState.sets,
+                        onIncrement = { viewModel.incrementSets() },
+                        onDecrement = { viewModel.decrementSets() }
                     )
-    //                Spacer(modifier = Modifier.width(2.dp))
                 }
 
                 Column(
@@ -304,186 +222,143 @@ fun ExAddEditScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
 
-                            // Row containing set title, sub-labels + controls
+                            // ⭐ Actual row of controls
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Bottom,
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                             ) {
 
-                                // Main label
-                                Text(
-                                    text = "Set ${index + 1}",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
+                                // Set label
+                                Box(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Set ${index + 1}",
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                        modifier = Modifier
+                                            .padding(bottom = 6.dp)
+                                    )
+                                }
 
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                // --- Reps Column ---
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.weight(1f)
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
+                                    // Reps counter (NO weight!)
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.width(IntrinsicSize.Min)
                                     ) {
+                                        if (index == 0) {
+                                            Text(
+                                                text = "Reps",
+                                                style = MaterialTheme.typography.labelMedium,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
 
-                                        // Display box
+                                        Spacer(Modifier.height(4.dp))
+
+                                        UpDownCounter(
+                                            sets = repsValue,
+                                            onIncrement = { viewModel.incrementRep(index) },
+                                            onDecrement = { viewModel.decrementRep(index) }
+                                        )
+                                    }
+
+                                    // Weight input (this one can still use weight)
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.width(IntrinsicSize.Min)
+                                    ) {
+                                        if (index == 0) {
+                                            Text(
+                                                text = "Weight",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.padding(bottom = 4.dp)
+                                            )
+                                        }
+
+//                                    Spacer(Modifier.width(1.dp))
+
                                         Box(
                                             modifier = Modifier
-                                                .width(60.dp)
+                                                .width(80.dp)   // give it a natural width
                                                 .height(32.dp)
                                                 .border(
                                                     width = 1.dp,
                                                     color = MaterialTheme.colorScheme.outline,
-                                                    shape = MaterialTheme.shapes.medium
-                                                )
-                                                .padding(horizontal = 8.dp),
+                                                    shape = MaterialTheme.shapes.small
+                                                ),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Text(
-                                                text = repsValue.toString(),
-                                                style = MaterialTheme.typography.bodySmall
-                                            )
-                                        }
-
-                                        // Up arrow
-                                        IconButton(
-                                            onClick = { viewModel.incrementRep(index) }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.KeyboardArrowUp,
-                                                contentDescription = "Increase reps"
-                                            )
-                                        }
-
-                                        // Down arrow
-                                        IconButton(
-                                            onClick = { viewModel.decrementRep(index) }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.KeyboardArrowDown,
-                                                contentDescription = "Decrease reps"
+                                            BasicTextField(
+                                                value = uiState.weights[index],
+                                                onValueChange = { newValue ->
+                                                    if (newValue.isEmpty() || newValue.matches(
+                                                            Regex(
+                                                                """\d*\.?\d*"""
+                                                            )
+                                                        )
+                                                    ) {
+                                                        viewModel.updateWeight(index, newValue)
+                                                    }
+                                                },
+                                                singleLine = true,
+                                                textStyle = MaterialTheme.typography.bodySmall.copy(
+                                                    textAlign = TextAlign.Center,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                ),
+                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                                modifier = Modifier.fillMaxWidth()
                                             )
                                         }
                                     }
                                 }
 
-                                // --- Weight Column ---
-                                Box(
-                                    modifier = Modifier
-                                        .width(80.dp)
-                                        .height(32.dp)
-                                        .border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.outline,
-                                            shape = MaterialTheme.shapes.small
-                                        ),
-                                    contentAlignment = Alignment.Center   // ← centers the text vertically & horizontally
-                                ) {
-                                    BasicTextField(
-                                        value = uiState.weights[index],
-                                        onValueChange = { newValue ->
-                                            if (newValue.isEmpty() || newValue.matches(Regex("""\d*\.?\d*"""))) {
-                                                viewModel.updateWeight(index, newValue)
-                                            }
-                                        },
-                                        singleLine = true,
-                                        textStyle = MaterialTheme.typography.bodySmall.copy(
-                                            textAlign = TextAlign.Center,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        ),
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        modifier = Modifier
-                                            .fillMaxWidth()   // let the Box handle centering
-                                            .padding(0.dp)    // no internal padding
-                                    )
-                                }
+                                Box(modifier = Modifier.weight(1f)) {}
                             }
                         }
                     }
                 }
 
-                //  Button to use KG or lb
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = if (uiState.useKg) "Using kg" else "Using lb",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Switch(
-                        checked = uiState.useKg,
-                        onCheckedChange = { viewModel.onUseKgChanged(it) }
-                    )
-                }
-
                 // Date stuff
+                SectionHeader("Date and time")
+
                 Text(
-                    text = "Date and time",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
+                    text = formatTimestampPretty(uiState.timestamp),
+                    style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 16.dp),
-                    textAlign = TextAlign.Start
-                )
-
-                val monthAbb = monthAbbrev(uiState.month.toInt())
-
-                Text(
-                    text = "${uiState.day} $monthAbb ${uiState.year} • ${uiState.hour}:${uiState.minute}",
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Center
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
-                    Button(
+                    RoundRectButton(
                         onClick = {
                             showDatePicker = true
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(
-                            "Change date",
-                        )
-                    }
+                        text = "Change date",
+                        mode = ButtonMode.Blue
+                    )
 
-                    Button(
+                    RoundRectButton(
                         onClick = {
                             showTimePicker = true
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(
-                            "Change time",
-                        )
-                    }
+                        text = "Change time",
+                        mode = ButtonMode.Blue
+                    )
+
 
                     if (showDatePicker) {
                         DatePickerDialog(
@@ -540,6 +415,27 @@ fun ExAddEditScreen(
                         }
                     }
                 }
+
+                SectionHeader("Settings")
+
+                //  Button to use KG or lb
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = if (uiState.useKg) "Using kg" else "Using lb",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Switch(
+                        checked = uiState.useKg,
+                        onCheckedChange = { viewModel.onUseKgChanged(it) }
+                    )
+                }
             }
         }
 
@@ -558,7 +454,8 @@ fun AutosaveOverlay(modifier: Modifier = Modifier) {
         modifier = modifier
             .padding(16.dp),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
         tonalElevation = 4.dp
     ) {
         Column(
@@ -566,14 +463,14 @@ fun AutosaveOverlay(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
-                imageVector = Icons.Default.Check,
+                imageVector = Icons.Default.Save,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.secondary
             )
             Spacer(Modifier.width(8.dp))
             Text(
                 "Saved",
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }

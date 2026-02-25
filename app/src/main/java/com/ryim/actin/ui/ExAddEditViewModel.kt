@@ -66,6 +66,32 @@ class ExAddEditViewModel @Inject constructor(
     )
     val uiState = _uiState.asStateFlow()
 
+    //  Setup timestamp updating and update with the initial state
+    private fun updateTimestampFromFields() {
+        val state = _uiState.value
+
+        val date = LocalDate(
+            state.year.toInt(),
+            state.month.toInt(),
+            state.day.toInt()
+        )
+
+        val time = LocalTime(
+            state.hour.toInt(),
+            state.minute.toInt()
+        )
+
+        val localDateTime = LocalDateTime(date, time)
+        val zone = TimeZone.currentSystemDefault()
+        val timestamp = localDateTime.toInstant(zone).toString()
+
+        _uiState.update { it.copy(timestamp = timestamp) }
+    }
+
+    init {
+        updateTimestampFromFields()
+    }
+
     //  Set the parameters if they have been passed here
     @OptIn(ExperimentalTime::class)
     fun setPrefillParams(
@@ -107,6 +133,7 @@ class ExAddEditViewModel @Inject constructor(
                     minute = ldt.time.minute.toString()
                 )
             }
+            updateTimestampFromFields()
         }
 
         scheduleAutosave()
@@ -188,6 +215,8 @@ class ExAddEditViewModel @Inject constructor(
                 year = year.toString()
             )
         }
+
+        updateTimestampFromFields()
         scheduleAutosave()
     }
 
@@ -198,6 +227,8 @@ class ExAddEditViewModel @Inject constructor(
                 minute = minute.toString()
             )
         }
+
+        updateTimestampFromFields()
         scheduleAutosave()
     }
 
@@ -219,7 +250,7 @@ class ExAddEditViewModel @Inject constructor(
         // Show autosaved banner
         _uiState.update { it.copy(autosaved = true) }
 
-        delay(1000) // show for 1 second
+        delay(500) // show for 1 second
 
         _uiState.update { it.copy(autosaved = false) }
     }
@@ -266,21 +297,7 @@ class ExAddEditViewModel @Inject constructor(
     fun saveExercise() {
         val state = uiState.value
 
-        val date = kotlinx.datetime.LocalDate(
-            state.year.toInt(),
-            state.month.toInt(),
-            state.day.toInt()
-        )
-
-        val time = LocalTime(
-            state.hour.toInt(),
-            state.minute.toInt()
-        )
-
-        val localDateTime = LocalDateTime(date, time)
-        val zone = TimeZone.currentSystemDefault()
-        val timestamp = localDateTime.toInstant(zone).toString()
-
+        updateTimestampFromFields()
 
         val entry = ExerciseEntry(
             name = state.name,
@@ -291,7 +308,7 @@ class ExAddEditViewModel @Inject constructor(
             day = state.day.toInt(),
             month = state.month.toInt(),
             year = state.year.toInt(),
-            timestamp = timestamp,
+            timestamp = state.timestamp,
             workout = state.workout,
             id = state.id
         )
@@ -312,14 +329,13 @@ data class ExAddUiState(
     val workout: String? = null,
     val id: String,
 
-    // Existing date fields
+    // date and time fields
     val day: String = "",
     val month: String = "",
     val year: String = "",
-
-    // New time fields
     val hour: String = "12",
     val minute: String = "00",
+    val timestamp: String = "",
 
     // Autosave features
     val autosaved: Boolean = false,

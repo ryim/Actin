@@ -451,24 +451,23 @@ fun ExerciseHistoryRow(
                 StandardIconButton(
                     icon = Icons.Default.Add,
                     onClick = {
-                            sharedExAddViewModel.setPrefill(
-                                ExAddPrefill(
-                                    name = entry.name,
-                                    sets = entry.sets,
-                                    reps = entry.reps,
-                                    weights = entry.weights.map { it.toString() },
-                                    useKg = entry.useKg,
-                                    editMode = false,
-                                    timestamp = entry.timestamp,
-                                    workout = null,
-                                    id = UUID.randomUUID().toString(),
-                                    listOfExercises = uiState.uniqueExerciseNames,
-                                )
+                        sharedExAddViewModel.setPrefill(
+                            ExAddPrefill(
+                                name = entry.name,
+                                sets = entry.sets,
+                                reps = entry.reps,
+                                weights = entry.weights.map { it.toString() },
+                                useKg = entry.useKg,
+                                editMode = false,
+                                timestamp = entry.timestamp,
+                                workout = null,
+                                id = UUID.randomUUID().toString(),
+                                listOfExercises = uiState.uniqueExerciseNames,
                             )
-                            onNavigateToExAdd()
-                        },
+                        )
+                        onNavigateToExAdd()
+                    },
                 )
-
 
                 Spacer(modifier = Modifier.width(8.dp))
 
