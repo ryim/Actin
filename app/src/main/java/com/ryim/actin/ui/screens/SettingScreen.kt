@@ -141,7 +141,7 @@ fun SettingScreen(
             ) {
                 Text(
                     text = "Dark mode",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -208,7 +208,8 @@ fun SettingScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Import exercise data as JSON",
+                    text = "Import exercise data JSON",
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -229,6 +230,7 @@ fun SettingScreen(
             ) {
                 Text(
                     text = "Export exercise data as JSON",
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -249,6 +251,7 @@ fun SettingScreen(
             ) {
                 Text(
                     text = "Export exercise data as TSV",
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -278,6 +281,7 @@ fun SettingScreen(
             ) {
                 Text(
                     text = "Import workout data",
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -298,6 +302,7 @@ fun SettingScreen(
             ) {
                 Text(
                     text = "Export workout data",
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
 

@@ -65,8 +65,8 @@ fun ExAddEditScreen(
 
     val canSave = uiState.name.isNotBlank()
 
-    var minutes by remember { mutableStateOf(0) }
-    var seconds by remember { mutableStateOf(30) }
+//    var minutes by remember { mutableStateOf(0) }
+//    var seconds by remember { mutableStateOf(30) }
 
     LaunchedEffect(prefill) {
         prefill?.let {
@@ -600,165 +600,165 @@ fun ExAddEditScreen(
     }
 }
 
-@Composable
-fun NumberPicker(
-    value: Int,
-    range: IntRange,
-    onValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = value.coerceIn(range)
-    )
+//@Composable
+//fun NumberPicker(
+//    value: Int,
+//    range: IntRange,
+//    onValueChange: (Int) -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    val listState = rememberLazyListState(
+//        initialFirstVisibleItemIndex = value.coerceIn(range)
+//    )
+//
+//    // When scroll position changes, update the selected value
+//    LaunchedEffect(listState.firstVisibleItemIndex) {
+//        val index = listState.firstVisibleItemIndex
+//        val newValue = (range.first + index).coerceIn(range)
+//        if (newValue != value) {
+//            onValueChange(newValue)
+//        }
+//    }
+//
+//    LazyColumn(
+//        state = listState,
+//        modifier = modifier.height(120.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        items(range.count()) { index ->
+//            val itemValue = range.first + index
+//            Text(
+//                text = itemValue.toString().padStart(2, '0'),
+//                style = MaterialTheme.typography.headlineMedium,
+//                modifier = Modifier.padding(vertical = 8.dp)
+//            )
+//        }
+//    }
+//}
 
-    // When scroll position changes, update the selected value
-    LaunchedEffect(listState.firstVisibleItemIndex) {
-        val index = listState.firstVisibleItemIndex
-        val newValue = (range.first + index).coerceIn(range)
-        if (newValue != value) {
-            onValueChange(newValue)
-        }
-    }
+//@Composable
+//fun MinuteSecondPicker(
+//    minutes: Int,
+//    seconds: Int,
+//    onMinutesChange: (Int) -> Unit,
+//    onSecondsChange: (Int) -> Unit
+//) {
+//    Row(
+//        horizontalArrangement = Arrangement.Center,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        NumberPicker(
+//            value = minutes,
+//            range = 0..59,
+//            onValueChange = onMinutesChange,
+//            modifier = Modifier.width(80.dp)
+//        )
+//
+//        Text(
+//            text = ":",
+//            style = MaterialTheme.typography.headlineMedium,
+//            modifier = Modifier.padding(horizontal = 8.dp)
+//        )
+//
+//        NumberPicker(
+//            value = seconds,
+//            range = 0..59,
+//            onValueChange = onSecondsChange,
+//            modifier = Modifier.width(80.dp)
+//        )
+//    }
+//}
 
-    LazyColumn(
-        state = listState,
-        modifier = modifier.height(120.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items(range.count()) { index ->
-            val itemValue = range.first + index
-            Text(
-                text = itemValue.toString().padStart(2, '0'),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-    }
-}
+//@Composable
+//fun StepperSelector(
+//    label: String,
+//    value: Int,
+//    range: IntRange,
+//    onValueChange: (Int) -> Unit
+//) {
+//    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//
+//        Text(
+//            text = label,
+//            style = MaterialTheme.typography.titleMedium
+//        )
+//
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.Center
+//        ) {
+//            IconButton(
+//                onClick = {
+//                    if (value > range.first) onValueChange(value - 1)
+//                }
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Remove,
+//                    contentDescription = "Decrease"
+//                )
+//            }
+//
+//            Text(
+//                text = value.toString().padStart(2, '0'),
+//                style = MaterialTheme.typography.headlineMedium,
+//                modifier = Modifier.width(40.dp),
+//                textAlign = TextAlign.Center
+//            )
+//
+//            IconButton(
+//                onClick = {
+//                    if (value < range.last) onValueChange(value + 1)
+//                }
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Add,
+//                    contentDescription = "Increase"
+//                )
+//            }
+//        }
+//    }
+//}
 
-@Composable
-fun MinuteSecondPicker(
-    minutes: Int,
-    seconds: Int,
-    onMinutesChange: (Int) -> Unit,
-    onSecondsChange: (Int) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        NumberPicker(
-            value = minutes,
-            range = 0..59,
-            onValueChange = onMinutesChange,
-            modifier = Modifier.width(80.dp)
-        )
+//@Composable
+//fun MinuteSecondStepper(
+//    minutes: Int,
+//    seconds: Int,
+//    onMinutesChange: (Int) -> Unit,
+//    onSecondsChange: (Int) -> Unit
+//) {
+//    Row(
+//        horizontalArrangement = Arrangement.Center,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        StepperSelector(
+//            label = "Min",
+//            value = minutes,
+//            range = 0..59,
+//            onValueChange = onMinutesChange
+//        )
+//
+//        Spacer(Modifier.width(24.dp))
+//
+//        StepperSelector(
+//            label = "Sec",
+//            value = seconds,
+//            range = 0..59,
+//            onValueChange = onSecondsChange
+//        )
+//    }
+//}
 
-        Text(
-            text = ":",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-        NumberPicker(
-            value = seconds,
-            range = 0..59,
-            onValueChange = onSecondsChange,
-            modifier = Modifier.width(80.dp)
-        )
-    }
-}
-
-@Composable
-fun StepperSelector(
-    label: String,
-    value: Int,
-    range: IntRange,
-    onValueChange: (Int) -> Unit
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            IconButton(
-                onClick = {
-                    if (value > range.first) onValueChange(value - 1)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Remove,
-                    contentDescription = "Decrease"
-                )
-            }
-
-            Text(
-                text = value.toString().padStart(2, '0'),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.width(40.dp),
-                textAlign = TextAlign.Center
-            )
-
-            IconButton(
-                onClick = {
-                    if (value < range.last) onValueChange(value + 1)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Increase"
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun MinuteSecondStepper(
-    minutes: Int,
-    seconds: Int,
-    onMinutesChange: (Int) -> Unit,
-    onSecondsChange: (Int) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        StepperSelector(
-            label = "Min",
-            value = minutes,
-            range = 0..59,
-            onValueChange = onMinutesChange
-        )
-
-        Spacer(Modifier.width(24.dp))
-
-        StepperSelector(
-            label = "Sec",
-            value = seconds,
-            range = 0..59,
-            onValueChange = onSecondsChange
-        )
-    }
-}
-
-@Composable
-fun StartTimerButton(
-    minutes: Int,
-    seconds: Int,
-    onStart: () -> Unit = {}
-) {
-    Button(
-        onClick = {
-            onStart()
-        }
-    ) {
-        Text("Start Timer")
-    }
-}
+//@Composable
+//fun StartTimerButton(
+//    minutes: Int,
+//    seconds: Int,
+//    onStart: () -> Unit = {}
+//) {
+//    Button(
+//        onClick = {
+//            onStart()
+//        }
+//    ) {
+//        Text("Start Timer")
+//    }
+//}

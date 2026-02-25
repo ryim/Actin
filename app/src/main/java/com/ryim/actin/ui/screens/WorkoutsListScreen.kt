@@ -1,5 +1,6 @@
 package com.ryim.actin.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import com.ryim.actin.R
 import com.ryim.actin.domain.workouts.Workout
 import com.ryim.actin.ui.ReusableComposables.AppBottomBar
 import com.ryim.actin.ui.ReusableComposables.AppTopBar
+import com.ryim.actin.ui.ReusableComposables.RoundRectButton
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.WorkoutListScreenViewModel
 import com.ryim.actin.ui.SharedWorkoutViewModel
@@ -108,22 +110,13 @@ fun WorkoutListScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
+            RoundRectButton(
                 onClick = {
                     sharedWorkoutViewModel.clearSelectedWorkout()
                     onNewWorkout()
                 },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary, // different from box
-                    contentColor = Color.White
-                )
-            ) {
-                Text(
-                    "New workout",
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
-
+                text = "New workout"
+            )
 
             LazyColumn(
                 modifier = Modifier
@@ -181,7 +174,9 @@ fun WorkoutListCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
     ) {
         Column(
             modifier = Modifier
@@ -206,15 +201,10 @@ fun WorkoutListCard(
                 }
 
                 // Start button on the right
-                Button(
+                RoundRectButton(
                     onClick = { onRunWorkout(workout) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Start", color = MaterialTheme.colorScheme.onSecondary)
-                }
+                    text = "Start"
+                )
 
                 //  Edit and delete dropdown
                 var menuExpanded by remember { mutableStateOf(false) }
