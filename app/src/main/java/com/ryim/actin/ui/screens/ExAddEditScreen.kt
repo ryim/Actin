@@ -39,9 +39,11 @@ import com.ryim.actin.ui.ExAddEditViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryim.actin.domain.monthAbbrev
 import com.ryim.actin.ui.ExAddPrefill
+import com.ryim.actin.ui.ReusableComposables.SuggestionTextField
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.intellij.lang.annotations.JdkConstants
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -167,7 +169,7 @@ fun ExAddEditScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val isNameError = uiState.name.isBlank()
+//                val isNameError = uiState.name.isBlank()
                 val suggestions = remember(uiState.name, prefill) {
                     prefill?.listOfExercises
                         ?.filter { it.contains(uiState.name, ignoreCase = true) }
@@ -176,65 +178,17 @@ fun ExAddEditScreen(
                         ?: emptyList()
                 }
 
-                val focusRequester = remember { FocusRequester() }
-                var expanded by remember { mutableStateOf(false) }
-                var isFocused by remember { mutableStateOf(false) }
+//                val focusRequester = remember { FocusRequester() }
+//                var expanded by remember { mutableStateOf(false) }
+//                var isFocused by remember { mutableStateOf(false) }
 
-                Column {
-                    TextField(
-                        value = uiState.name,
-                        onValueChange = {
-                            viewModel.onNameChanged(it)
-                            expanded = true
-                        },
-                        label = { Text("Exercise name") },
-                        isError = isNameError,
-                        supportingText = {
-                            if (isNameError) Text("Name is required")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { state ->
-                                isFocused = state.isFocused
-                                if (!state.isFocused) expanded = false
-                            },
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences
-                        )
-                    )
-
-                    if (expanded && isFocused && suggestions.isNotEmpty()) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp)
-                        ) {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 200.dp) // limit size
-                                    .padding(8.dp)
-                            ) {
-                                items(suggestions) { suggestion ->
-                                    Text(
-                                        text = suggestion,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                viewModel.onNameChanged(suggestion)
-                                                expanded = false
-
-                                                // Keep focus on the text field
-                                                focusRequester.requestFocus()
-                                            }
-                                            .padding(12.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                SuggestionTextField(
+                    value = uiState.name,
+                    onValueChange = { viewModel.onNameChanged(it) },
+                    suggestions = suggestions,
+                    label = "Exercise name",
+                    modifier = Modifier.fillMaxWidth()
+                )
 
     //            MinuteSecondStepper(
     //                minutes = minutes,
@@ -607,9 +561,9 @@ fun AutosaveOverlay(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.primary,
         tonalElevation = 4.dp
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 imageVector = Icons.Default.Check,

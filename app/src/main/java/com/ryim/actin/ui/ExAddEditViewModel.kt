@@ -214,6 +214,7 @@ class ExAddEditViewModel @Inject constructor(
 
     private suspend fun performAutosave() {
         saveExercise() // your existing save logic
+        _uiState.update { it.copy(editMode = true) }
 
         // Show autosaved banner
         _uiState.update { it.copy(autosaved = true) }
