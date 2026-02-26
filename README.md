@@ -3,10 +3,13 @@
 ##  To Do list
 
 ### High priority
+-   (Feature) (For release) Add an about screen with version number
+-   (Feature) Add a link to the Github repo in the About, when both are available
+-   (Feature) (For release) Add privacy policy to the About screen
+-   (For release) (Change) sharedWorkoutViewModel so that when navigating away from the workout run screen, pressing the workout button on the nav bar takes you back to the active workout
 
 ### Medium priority
 -   (For release) Add a proper changelog
--   (For release) Stick project on Github
 -   (For release) Setup versioning in Github
 -   (For release) Setup versioning in the package, and keep it synced with the Github version
 -   (For release) Setup building of the APK on Github
@@ -15,13 +18,8 @@
 -   (For release) Write basic intro to the app, with screenshots
 -   (For release) Work out how to get it submitted to F-droid
 -   (Feature) Add a warning that importing data overwrites the existing data.
--   (UX/UI) Maybe move the up and down arrows on the ExAddScreen to either side of the reps counter
--   (For release) (Change) sharedWorkoutViewModel so that when navigating away from the workout run screen, pressing the workout button on the nav bar takes you back to the active workout
 
 ### Low priority
--   (Feature) (For release) Add an about screen with version number
--   (Feature) Add a link to the Github repo in the About, when both are available
--   (Feature) (For release) Add privacy policy to the About screen
 -   (Feature) Add a timer
     -   Add timer settings on the settings screen               [ ]
     -   Add timer button to the Exercise addition screen        [ ]
@@ -30,9 +28,12 @@
 
 ##  Bugs
 -   (Fix) There is no checking for integrity of the JSON file on import
--   (Fix) Time display on the exercise add screen - harmonise with the rest of the app
 
 ##  Done
+-   (UX/UI) Maybe move the up and down arrows on the ExAddScreen to either side of the reps counter
+-   (For release) Stick project on Github
+-   (Feature) Add autosave to the ExAddEditScreen
+-   (Fix) Time display on the exercise add screen - harmonise with the rest of the app
 -   (Feature) Filter full history by personal bests or latest
 -   (For release) Tidy up unused semi-complete features
 -   (Feature) Workout data import and export
