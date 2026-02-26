@@ -46,10 +46,11 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun ExAddEditScreen(
+    viewModel: ExAddEditViewModel,
     prefill: ExAddPrefill?,
     onBack: () -> Unit = {}
 ) {
-    val viewModel: ExAddEditViewModel = hiltViewModel()
+//    val viewModel: ExAddEditViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
     // Date/time pickers

@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ryim.actin.ui.ExAddEditViewModel
 import com.ryim.actin.ui.ProgressScreenViewModel
 import com.ryim.actin.ui.HomeScreenViewModel
 import com.ryim.actin.ui.SharedExAddViewModel
@@ -93,10 +94,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 navController.getBackStackEntry("root")   // or whatever your top-level graph route is
             }
             val sharedExAddViewModel: SharedExAddViewModel = hiltViewModel(parentEntry)
-
             val prefill = sharedExAddViewModel.prefill.collectAsState().value
 
+            val viewModel: ExAddEditViewModel = hiltViewModel(parentEntry)
+
             ExAddEditScreen(
+                viewModel = viewModel,
                 prefill = prefill,
                 onBack = {
                     sharedExAddViewModel.clearPrefill()

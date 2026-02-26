@@ -1,5 +1,6 @@
 package com.ryim.actin.ui
 
+import android.util.Log
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -90,9 +91,12 @@ class ExAddEditViewModel @Inject constructor(
 
     init {
         updateTimestampFromFields()
+        //  ?? Temp
+        Log.d("ExAddEditVM", "Created: ${this.hashCode()}")
     }
 
     //  Set the parameters if they have been passed here
+    private var prefillApplied = false
     @OptIn(ExperimentalTime::class)
     fun setPrefillParams(
         name: String,
@@ -105,6 +109,9 @@ class ExAddEditViewModel @Inject constructor(
         workout: String?,
         id: String
     ) {
+        if (prefillApplied) return
+        prefillApplied = true
+
         _uiState.update {
             it.copy(
                 name = name,
@@ -119,7 +126,6 @@ class ExAddEditViewModel @Inject constructor(
             )
         }
 
-        //  Update the time and date pickers with the current timestamp
         if (editMode && oldTimestamp != null) {
             val instant = Instant.parse(oldTimestamp)
             val ldt = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -133,6 +139,7 @@ class ExAddEditViewModel @Inject constructor(
                     minute = ldt.time.minute.toString()
                 )
             }
+
             updateTimestampFromFields()
         }
 
