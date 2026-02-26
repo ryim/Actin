@@ -136,7 +136,7 @@ fun WeeklyBarChart(
     val maxCount = data.maxOf { it.count }.coerceAtLeast(1)
 
     // Tooltip state
-    var selectedIndex by remember { mutableStateOf<Int?>(null) }
+//    var selectedIndex by remember { mutableStateOf<Int?>(null) }
 
     val textPaint = remember {
         Paint().asFrameworkPaint().apply {
@@ -149,30 +149,30 @@ fun WeeklyBarChart(
 
     Canvas(
         modifier = modifier
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val pos = event.changes.firstOrNull()?.position ?: continue
-
-                        // Compute layout constants here too
-                        val chartLeftPadding = 80f
-//                        val chartBottomPadding = 60f
-                        val chartWidth = size.width - chartLeftPadding
-                        val barWidth = chartWidth / data.size
-
-                        val x = pos.x - chartLeftPadding
-                        if (x >= 0f) {
-                            val index = (x / barWidth).toInt()
-                            if (index in data.indices) {
-                                selectedIndex = index
-                            }
-                        }
-
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
+//            .pointerInput(Unit) {
+//                awaitPointerEventScope {
+//                    while (true) {
+//                        val event = awaitPointerEvent()
+//                        val pos = event.changes.firstOrNull()?.position ?: continue
+//
+//                        // Compute layout constants here too
+//                        val chartLeftPadding = 80f
+////                        val chartBottomPadding = 60f
+//                        val chartWidth = size.width - chartLeftPadding
+//                        val barWidth = chartWidth / data.size
+//
+//                        val x = pos.x - chartLeftPadding
+//                        if (x >= 0f) {
+//                            val index = (x / barWidth).toInt()
+//                            if (index in data.indices) {
+//                                selectedIndex = index
+//                            }
+//                        }
+//
+//                        event.changes.forEach { it.consume() }
+//                    }
+//                }
+//            }
     ) {
         val chartLeftPadding = 80f
         val chartBottomPadding = 60f
@@ -182,6 +182,30 @@ fun WeeklyBarChart(
 
         val barWidth = chartWidth / data.size
         val heightPerUnit = chartHeight / maxCount
+
+        // --- Draw Y-axis grid lines + labels ---
+        val maxTicks = 4
+        val rawStep = (maxCount.toFloat() / maxTicks).ceilToInt().coerceAtLeast(1)
+        val maxLabelValue = ((maxCount + rawStep - 1) / rawStep) * rawStep
+        for (value in 0..maxLabelValue step rawStep) {
+            val y = chartHeight - (value * heightPerUnit)
+
+            // Grid line
+            drawLine(
+                color = Color.LightGray.copy(alpha = 0.4f),
+                start = Offset(chartLeftPadding, y),
+                end = Offset(size.width, y),
+                strokeWidth = 2f
+            )
+
+            // Y-axis label
+            drawContext.canvas.nativeCanvas.drawText(
+                value.toString(),
+                chartLeftPadding - 30f,
+                y + 10f,
+                textPaint
+            )
+        }
 
         // --- Draw bars + X-axis labels ---
         data.forEachIndexed { index, week ->
@@ -221,56 +245,32 @@ fun WeeklyBarChart(
             drawContext.canvas.nativeCanvas.restore()
         }
 
-        // --- Draw Y-axis grid lines + labels ---
-        val maxTicks = 4
-        val rawStep = (maxCount.toFloat() / maxTicks).ceilToInt().coerceAtLeast(1)
-        val maxLabelValue = ((maxCount + rawStep - 1) / rawStep) * rawStep
-        for (value in 0..maxLabelValue step rawStep) {
-            val y = chartHeight - (value * heightPerUnit)
-
-            // Grid line
-            drawLine(
-                color = Color.LightGray.copy(alpha = 0.4f),
-                start = Offset(chartLeftPadding, y),
-                end = Offset(size.width, y),
-                strokeWidth = 2f
-            )
-
-            // Y-axis label
-            drawContext.canvas.nativeCanvas.drawText(
-                value.toString(),
-                chartLeftPadding - 30f,
-                y + 10f,
-                textPaint
-            )
-        }
-
-        // Draw tooltip if a bar is selected
-        selectedIndex?.let { index ->
-            val week = data[index]
-            val barHeight = week.count * heightPerUnit
-            val left = chartLeftPadding + index * barWidth + (barWidth * 0.4f)
-            val top = chartHeight - barHeight
-
-            // Tooltip background
-            val tooltipWidth = 120f
-            val tooltipHeight = 60f
-
-            drawRoundRect(
-                color = Color.Black.copy(alpha = 0.8f),
-                topLeft = Offset(left - tooltipWidth / 2, top - tooltipHeight - 20f),
-                size = Size(tooltipWidth, tooltipHeight),
-                cornerRadius = CornerRadius(12f, 12f)
-            )
-
-            // Tooltip text
-            drawContext.canvas.nativeCanvas.drawText(
-                "${week.count}",
-                left,
-                top - tooltipHeight / 2 - 10f,
-                textPaint.apply { color = Color.White.toArgb() }
-            )
-        }
+//        // Draw tooltip if a bar is selected
+//        selectedIndex?.let { index ->
+//            val week = data[index]
+//            val barHeight = week.count * heightPerUnit
+//            val left = chartLeftPadding + index * barWidth + (barWidth * 0.4f)
+//            val top = chartHeight - barHeight
+//
+//            // Tooltip background
+//            val tooltipWidth = 120f
+//            val tooltipHeight = 60f
+//
+//            drawRoundRect(
+//                color = Color.Black.copy(alpha = 0.8f),
+//                topLeft = Offset(left - tooltipWidth / 2, top - tooltipHeight - 20f),
+//                size = Size(tooltipWidth, tooltipHeight),
+//                cornerRadius = CornerRadius(12f, 12f)
+//            )
+//
+//            // Tooltip text
+//            drawContext.canvas.nativeCanvas.drawText(
+//                "${week.count}",
+//                left,
+//                top - tooltipHeight / 2 - 10f,
+//                textPaint.apply { color = Color.White.toArgb() }
+//            )
+//        }
     }
 }
 
