@@ -35,6 +35,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -132,20 +133,24 @@ fun UpDownCounter(
         Box(
             modifier = Modifier
                 .width(64.dp)
-                .height(32.dp)
+                .height(38.dp)
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.medium
-                )
-                .padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant,   // matches OutlinedButton
+                    shape = MaterialTheme.shapes.small
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = sets.toString(),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall.copy(
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
         }
+
 
 //            Spacer(modifier = Modifier.width(8.dp))
         // Up arrow

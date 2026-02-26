@@ -238,7 +238,7 @@ fun ExAddEditScreen(
                                         text = "Set ${index + 1}",
                                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                         modifier = Modifier
-                                            .padding(bottom = 6.dp)
+                                            .padding(bottom = 8.dp)
                                     )
                                 }
 
@@ -254,12 +254,11 @@ fun ExAddEditScreen(
                                         if (index == 0) {
                                             Text(
                                                 text = "Reps",
-                                                style = MaterialTheme.typography.labelMedium,
-                                                textAlign = TextAlign.Center
+                                                style = MaterialTheme.typography.labelLarge,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.padding(bottom = 4.dp)
                                             )
                                         }
-
-                                        Spacer(Modifier.height(4.dp))
 
                                         UpDownCounter(
                                             sets = repsValue,
@@ -287,10 +286,10 @@ fun ExAddEditScreen(
                                         Box(
                                             modifier = Modifier
                                                 .width(80.dp)   // give it a natural width
-                                                .height(32.dp)
+                                                .height(38.dp)
                                                 .border(
                                                     width = 1.dp,
-                                                    color = MaterialTheme.colorScheme.outline,
+                                                    color = MaterialTheme.colorScheme.outlineVariant,
                                                     shape = MaterialTheme.shapes.small
                                                 ),
                                             contentAlignment = Alignment.Center
@@ -349,7 +348,7 @@ fun ExAddEditScreen(
                             showDatePicker = true
                         },
                         text = "Change date",
-                        mode = ButtonMode.Blue
+                        mode = ButtonMode.Bordered
                     )
 
                     RoundRectButton(
@@ -357,7 +356,7 @@ fun ExAddEditScreen(
                             showTimePicker = true
                         },
                         text = "Change time",
-                        mode = ButtonMode.Blue
+                        mode = ButtonMode.Bordered
                     )
 
 

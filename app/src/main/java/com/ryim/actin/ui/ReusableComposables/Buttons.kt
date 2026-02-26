@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,6 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
+enum class ButtonMode {
+    Yellow,
+    Blue,
+    Bordered
+}
+
 @Composable
 fun RoundRectButton(
     text: String,
@@ -30,37 +37,63 @@ fun RoundRectButton(
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
-    val (background, content) = when (mode) {
-        ButtonMode.Yellow -> MaterialTheme.colorScheme.secondary to MaterialTheme.colorScheme.onSecondary
-        ButtonMode.Blue   -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.onPrimary
-    }
+    val shape = RoundedCornerShape(8.dp)
+    val padding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
 
-    Box {
-        Button(
-            onClick = { onClick() },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = background,
-                contentColor = content
-            ),
-            enabled = enabled,
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
+    when (mode) {
+        ButtonMode.Yellow,
+        ButtonMode.Blue -> {
+            val (background, content) = when (mode) {
+                ButtonMode.Yellow -> MaterialTheme.colorScheme.secondary to MaterialTheme.colorScheme.onSecondary
+                ButtonMode.Blue   -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.onPrimary
+                else -> error("Unexpected mode")
+            }
+
+            Button(
+                onClick = onClick,
+                enabled = enabled,
+                shape = shape,
+                contentPadding = padding,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = background,
+                    contentColor = content
+                )
             ) {
-                Text(text)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text)
+                }
+            }
+        }
+
+        ButtonMode.Bordered -> {
+            OutlinedButton(
+                onClick = onClick,
+                enabled = enabled,
+                shape = shape,
+                contentPadding = padding,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+//                border = BorderStroke(
+//                    width = 1.dp,
+//                    color = MaterialTheme.colorScheme.outline
+//                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text)
+                }
             }
         }
     }
 }
 
-enum class ButtonMode {
-    Yellow,
-    Blue
-}
 
 @Composable
 fun StandardIconButton(
