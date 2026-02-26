@@ -9,10 +9,12 @@ import com.ryim.actin.domain.ExerciseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -250,7 +252,14 @@ class ExAddEditViewModel @Inject constructor(
         }
     }
 
+    fun cancelAutosave() {
+        autosaveJob?.cancel()
+        autosaveJob = null
+    }
+
     private suspend fun performAutosave() {
+        if (!currentCoroutineContext().isActive) return
+
         saveExercise() // your existing save logic
         _uiState.update { it.copy(editMode = true) }
 

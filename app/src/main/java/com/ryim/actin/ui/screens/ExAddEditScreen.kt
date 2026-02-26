@@ -38,6 +38,7 @@ import com.ryim.actin.ui.ReusableComposables.RoundRectButton
 import com.ryim.actin.ui.ReusableComposables.SectionHeader
 import com.ryim.actin.ui.ReusableComposables.SuggestionTextField
 import com.ryim.actin.ui.ReusableComposables.UpDownCounter
+import com.ryim.actin.ui.theme.SplashBack
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -119,6 +120,8 @@ fun ExAddEditScreen(
 
                     RoundRectButton(
                         onClick = {
+                            viewModel.cancelAutosave()
+
                             if (prefill?.editMode ?: false) {
                                 viewModel.restoreOriginal(prefill)
                             } else {
@@ -462,14 +465,18 @@ fun AutosaveOverlay(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.Save,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary
+//            Icon(
+//                imageVector = Icons.Default.Save,
+//                contentDescription = null,
+//                tint = MaterialTheme.colorScheme.secondary
+//            )
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = SplashBack
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                "Saved",
+                "Saving",
                 color = MaterialTheme.colorScheme.secondary
             )
         }
